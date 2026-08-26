@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog — Wantt</title>
+  <meta name="description" content="A simple chronological record of what changed in Wantt and why.">
+  <meta name="theme-color" content="#f7f3ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#11131b" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-glow glow-one" aria-hidden="true"></div>
+  <div class="page-glow glow-two" aria-hidden="true"></div>
+
+  <header class="site-header shell">
+    <a class="brand" href="/" aria-label="Wantt home">wantt</a>
+    <span class="status">changelog</span>
+  </header>
+
+  <main class="changelog shell">
+    <header class="changelog-intro">
+      <p class="eyebrow">building wantt</p>
+      <h1>Changelog</h1>
+      <p class="lede">A simple record of what changed in Wantt, what we learned, and where it goes next.</p>
+    </header>
+
+    <section class="changelog-list" aria-label="Wantt changelog entries">
+      <article class="change-entry">
+        <div class="change-date">26 Aug 2026</div>
+        <div class="change-body">
+          <span class="change-kicker">Website</span>
+          <h2>wantt.io is live</h2>
+          <p>The first public home for Wantt is online. It is intentionally simple for now: a place to explain the idea, keep a changelog, and point toward the App Store launch.</p>
+          <ul>
+            <li>Launched wantt.io on GitHub Pages</li>
+            <li>Added the first Wantt visual identity and bookmark mark</li>
+            <li>Added light and dark mode styling</li>
+            <li>Added Privacy, Terms and Support placeholders ahead of App Store submission</li>
+          </ul>
+          <p class="change-next"><strong>Next:</strong> keep iterating on the product in TestFlight and make the public site evolve alongside it.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
+        <div class="change-date">Aug 2026</div>
+        <div class="change-body">
+          <span class="change-kicker">Milestone</span>
+          <h2>First TestFlight build</h2>
+          <p>Wantt moved from a private web prototype into a working iPhone beta. The core loop now works end to end: save a social post, extract what is useful inside it, and come back to it later in a form that is easier to use.</p>
+          <ul>
+            <li>Share Instagram posts directly into Wantt from the iOS Share Sheet</li>
+            <li>Extract public post metadata and captions</li>
+            <li>Use AI to identify places, venues and useful context</li>
+            <li>Open extracted places in Google Maps</li>
+            <li>Detect duplicate saves</li>
+            <li>Remove saved posts</li>
+            <li>Support light and dark mode</li>
+          </ul>
+          <p class="change-next"><strong>Next:</strong> use it heavily, find the friction, and improve the save-to-use loop before App Store submission.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <span>© 2026 Wantt</span>
+    <nav aria-label="Footer">
+      <a href="changelog.html" aria-current="page">Changelog</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </footer>
+</body>
+</html>
