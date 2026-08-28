@@ -29,6 +29,26 @@
 
     <section class="changelog-list" aria-label="Wantt changelog entries">
       <article class="change-entry">
+        <div class="change-date">28 Aug 2026</div>
+        <div class="change-body">
+          <span class="change-kicker">Product foundation</span>
+          <h2>A save can become more than one thing</h2>
+          <p>The biggest change so far was mostly under the surface. Wantt's original model treated a saved post as something fairly simple, often a single place. Real saves are not that tidy.</p>
+          <p>We rebuilt the underlying model so one post can contain multiple recommendations and things worth trying, while different shares of the same source can converge on the same canonical content. The app also moved onto a new versioned API with richer place information.</p>
+          <ul>
+            <li>Support multiple recommendations and things to try from a single saved post</li>
+            <li>Added canonical saves and stronger duplicate handling</li>
+            <li>Moved the app onto the new /v2 data path</li>
+            <li>Added richer place metadata, including opening hours and open-now state</li>
+            <li>Kept the previous TestFlight build compatible while the backend changed underneath it</li>
+            <li>Completed a release closeout and regression pass before accepting the new release state</li>
+          </ul>
+          <p>Getting there exposed an important distinction between merged and shipped. Some of the new code initially landed while the production backend was still running an older deployment, which left real saves stuck looking for a place match. Redeploying the current backend brought the product back into sync without requiring another TestFlight build.</p>
+          <p class="change-next"><strong>Next:</strong> spend less time rebuilding foundations and more time using Wantt as a real product.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">26 Aug 2026</div>
         <div class="change-body">
           <span class="change-kicker">Website</span>
