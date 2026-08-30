@@ -29,6 +29,30 @@
 
     <section class="changelog-list" aria-label="Wantt changelog entries">
       <article class="change-entry">
+        <div class="change-date">30 Aug 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Account foundation</span>
+            <span class="change-version">v0.3.0</span>
+          </div>
+          <h2>Wantt gets real user accounts</h2>
+          <p>Wantt now has its first durable user-account foundation. Sign in with Apple is live in the TestFlight release, while the app keeps the local-first behaviour that made the early builds useful.</p>
+          <ul>
+            <li>Added Sign in with Apple and persistent Wantt user identities</li>
+            <li>Existing anonymous server Saves are adopted when a user signs in, without reassigning content that already has an owner</li>
+            <li>Anonymous use still works after sign-out, and signing back in with the same Apple Account resolves the same Wantt user</li>
+            <li>Preserved existing local Saves and Trips through sign-in, sign-out and re-sign-in</li>
+            <li>Scoped user-owned server data to the authenticated Wantt user</li>
+            <li>Added permanent, sanitized diagnostics across capture, authentication, submission, enrichment and persistence</li>
+            <li>Added paired mobile ↔ API contract tests around the most important production request shapes</li>
+          </ul>
+          <p>Engineering and deployment are complete. The production account migration is applied, the v0.3.0 release candidate is in TestFlight, and the full Device A production path has passed: Sign in with Apple, Share → save → authenticated enrichment, persistence after force quit/reopen, and same-account sign-out/re-sign-in.</p>
+          <p>The release is <strong>conditionally accepted</strong> rather than finally closed. A second tester still needs the same Build 7 binary so we can prove two-user isolation on two physical iPhones. That final check is currently waiting on Apple's external TestFlight review, not on an engineering blocker.</p>
+          <p class="change-next"><strong>Next:</strong> finish the Device B isolation check, then move into the next product build.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">28 Aug 2026</div>
         <div class="change-body">
           <div class="change-meta">
