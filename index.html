@@ -16,6 +16,8 @@
   <meta name="twitter:description" content="Turn forgotten social saves into useful places, plans and ideas for later.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="hero-icon.css">
+  <script src="site.js" defer></script>
 </head>
 <body>
   <div class="page-glow glow-one" aria-hidden="true"></div>
@@ -42,17 +44,10 @@
       </div>
 
       <div class="hero-mark" aria-hidden="true">
-        <div class="mark-card">
-          <svg class="bookmark-mark" viewBox="0 0 200 240">
-            <defs>
-              <linearGradient id="markGradient" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stop-color="#91a9df"/>
-                <stop offset=".44" stop-color="#b99ac9"/>
-                <stop offset="1" stop-color="#f0a17f"/>
-              </linearGradient>
-            </defs>
-            <path d="M45 24h110c11.6 0 21 9.4 21 21v144.5c0 16.3-19.4 24.8-31.4 13.8L100 162.5l-44.6 40.8C43.4 214.3 24 205.8 24 189.5V45c0-11.6 9.4-21 21-21Z" fill="url(#markGradient)"/>
-          </svg>
+        <div class="app-icon-float">
+          <div class="app-icon" id="wantt-app-icon">
+            <img src="assets/wantt-app-icon.webp" alt="" width="1024" height="1024" fetchpriority="high">
+          </div>
         </div>
       </div>
     </section>
