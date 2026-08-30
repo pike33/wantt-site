@@ -17,7 +17,6 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="hero-icon.css">
-  <script src="site.js" defer></script>
 </head>
 <body>
   <div class="page-glow glow-one" aria-hidden="true"></div>
@@ -45,36 +44,8 @@
 
       <div class="hero-mark" aria-hidden="true">
         <div class="app-icon-float">
-          <div class="app-icon" id="wantt-app-icon">
-            <svg class="app-icon-art" viewBox="0 0 1024 1024" role="img" aria-label="Wantt app icon">
-              <defs>
-                <linearGradient id="wanttMarkGradient" x1="0" y1="1" x2="1" y2="0">
-                  <stop offset="0" stop-color="#8eb6ff"/>
-                  <stop offset=".34" stop-color="#aaa0e0"/>
-                  <stop offset=".66" stop-color="#d69fc2"/>
-                  <stop offset="1" stop-color="#f0b08e"/>
-                </linearGradient>
-                <linearGradient id="wanttUnderlight" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stop-color="#75b8ff"/>
-                  <stop offset=".46" stop-color="#c7a6ff"/>
-                  <stop offset="1" stop-color="#ef9ed3"/>
-                </linearGradient>
-                <filter id="wanttSoftGlow" x="-50%" y="-50%" width="200%" height="220%">
-                  <feGaussianBlur stdDeviation="18"/>
-                </filter>
-                <filter id="wanttInnerSoft" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="4"/>
-                </filter>
-              </defs>
-
-              <path class="mark-under-glow" d="M282 704 Q282 790 338 822 Q400 855 452 790 L499 722 Q512 704 525 722 L572 790 Q624 855 686 822 Q742 790 742 704" fill="none" stroke="url(#wanttUnderlight)" stroke-width="34" stroke-linecap="round" filter="url(#wanttSoftGlow)" opacity=".88"/>
-
-              <path class="mark-body" d="M334 230 H690 Q742 230 742 282 V704 Q742 790 686 822 Q624 855 572 790 L525 722 Q512 704 499 722 L452 790 Q400 855 338 822 Q282 790 282 704 V282 Q282 230 334 230 Z" fill="url(#wanttMarkGradient)"/>
-
-              <path class="mark-edge" d="M334 230 H690 Q742 230 742 282 V704 Q742 790 686 822 Q624 855 572 790 L525 722 Q512 704 499 722 L452 790 Q400 855 338 822 Q282 790 282 704 V282 Q282 230 334 230 Z" fill="none" stroke="rgba(255,255,255,.38)" stroke-width="4" opacity=".55"/>
-
-              <path class="mark-bottom-light" d="M282 704 Q282 790 338 822 Q400 855 452 790 L499 722 Q512 704 525 722 L572 790 Q624 855 686 822 Q742 790 742 704" fill="none" stroke="url(#wanttUnderlight)" stroke-width="11" stroke-linecap="round" opacity=".95" filter="url(#wanttInnerSoft)"/>
-            </svg>
+          <div class="app-icon">
+            <img src="assets/wantt-app-icon.webp" alt="" width="512" height="512" fetchpriority="high">
           </div>
         </div>
       </div>
