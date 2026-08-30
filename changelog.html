@@ -36,19 +36,16 @@
             <span class="change-version">v0.3.0</span>
           </div>
           <h2>Wantt gets real user accounts</h2>
-          <p>Wantt now has its first durable user-account foundation. Sign in with Apple is live in the TestFlight release, while the app keeps the local-first behaviour that made the early builds useful.</p>
+          <p>Build 7 gives Wantt its first proper account foundation. Sign in with Apple is now part of the TestFlight app, while the experience remains local-first and still works without forcing people through a login wall.</p>
           <ul>
-            <li>Added Sign in with Apple and persistent Wantt user identities</li>
-            <li>Existing anonymous server Saves are adopted when a user signs in, without reassigning content that already has an owner</li>
-            <li>Anonymous use still works after sign-out, and signing back in with the same Apple Account resolves the same Wantt user</li>
-            <li>Preserved existing local Saves and Trips through sign-in, sign-out and re-sign-in</li>
-            <li>Scoped user-owned server data to the authenticated Wantt user</li>
-            <li>Added permanent, sanitized diagnostics across capture, authentication, submission, enrichment and persistence</li>
-            <li>Added paired mobile ↔ API contract tests around the most important production request shapes</li>
+            <li>Sign in with Apple is now available in Settings</li>
+            <li>Existing Saves and Trips stay intact when you sign in or out</li>
+            <li>Anonymous use still works, and signing back in with the same Apple Account returns you to the same Wantt account</li>
+            <li>Behind the scenes, account ownership, diagnostics and app-to-server checks were hardened so multiple testers can use Wantt safely and failures are easier to diagnose</li>
           </ul>
-          <p>Engineering and deployment are complete. The production account migration is applied, the v0.3.0 release candidate is in TestFlight, and the full Device A production path has passed: Sign in with Apple, Share → save → authenticated enrichment, persistence after force quit/reopen, and same-account sign-out/re-sign-in.</p>
-          <p>The release is <strong>conditionally accepted</strong> rather than finally closed. A second tester still needs the same Build 7 binary so we can prove two-user isolation on two physical iPhones. That final check is currently waiting on Apple's external TestFlight review, not on an engineering blocker.</p>
-          <p class="change-next"><strong>Next:</strong> finish the Device B isolation check, then move into the next product build.</p>
+          <p>Engineering and deployment are complete, and the main production journey has passed on the first physical iPhone: share a new Reel, see it save immediately, enrich it, reopen the app and find the result still there.</p>
+          <p>Build 7 is <strong>conditionally accepted</strong> for now. The remaining check is deliberately simple but important: put the same TestFlight build on a second person's iPhone and confirm that the two users' Wantt data stays separate. That test is waiting on Apple's external TestFlight review.</p>
+          <p class="change-next"><strong>Next:</strong> finish the two-user check, then start making Wantt feel much more like the product it wants to become.</p>
         </div>
       </article>
 
