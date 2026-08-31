@@ -46,6 +46,30 @@
 
     <section class="changelog-list" aria-label="Wantt changelog entries">
       <article class="change-entry">
+        <div class="change-date">31 Aug 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Product polish</span>
+            <span class="change-version">v0.4.0</span>
+          </div>
+          <h2>Wantt starts to feel like Wantt</h2>
+          <p>Build 8 was the first deliberate product-quality pass across the main Wantt experience. The foundations were already working; this release focused on making the app clearer, more useful and much closer to the product we actually want people to use.</p>
+          <ul>
+            <li>Renamed Trips to Plans across the user-facing experience</li>
+            <li>Redesigned the Saves and Plans overviews for a denser, more content-first library</li>
+            <li>Cleaned up primary navigation, back behaviour and screen hierarchy</li>
+            <li>Reworked Save Detail so useful place, things-to-try and Plan information leads, with Instagram treated as supporting source content</li>
+            <li>Polished Plan Detail across both List and Map views, including a new Wantt map-marker treatment</li>
+            <li>Added the updated Wantt app icon to the real TestFlight build</li>
+            <li>Established a backend-first production verification process for future releases that change APIs or data models</li>
+          </ul>
+          <p>The release passed its wider physical-iPhone review: existing Saves and Plans survived the upgrade, Share Sheet capture and enrichment continued to work, the new detail hierarchy held up on-device, and the map interactions behaved as intended.</p>
+          <p>One issue did survive the release. Manual Plan reordering did not work reliably on a physical iPhone. A replacement TestFlight binary — Build 9 — was produced to address it, but the behaviour remained effectively unchanged. Rather than keep burning release cycles on a non-critical bug, v0.4.0 was accepted with Plan reordering recorded as a known issue and deferred to the next build.</p>
+          <p class="change-next"><strong>Next:</strong> fix Plan reordering, then keep improving the reliability and intelligence behind what a save can become.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">30 Aug 2026</div>
         <div class="change-body">
           <div class="change-meta">
