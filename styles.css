@@ -104,10 +104,12 @@ h2 { margin-bottom: 0; max-width: 780px; font-size: clamp(40px, 5.4vw, 72px); li
 
 .example-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .example-card { min-height: 460px; padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 26px; box-shadow: 0 14px 60px rgba(70,62,80,.05); }
-.mini-art { height: 235px; border-radius: 22px; display: grid; place-items: center; font-size: 68px; overflow: hidden; }
-.food .mini-art { background: radial-gradient(circle at 62% 45%, #d98b7f, transparent 24%), radial-gradient(circle at 32% 70%, #c59bbd, transparent 34%), #202334; }
-.nature .mini-art { background: radial-gradient(circle at 70% 30%, #d8a282, transparent 25%), radial-gradient(circle at 30% 65%, #889fd0, transparent 39%), #252a3b; }
-.road .mini-art { background: radial-gradient(circle at 58% 38%, #ddb28f, transparent 29%), radial-gradient(circle at 28% 73%, #9e98c9, transparent 39%), #2a2938; }
+.mini-art { position: relative; height: 235px; border-radius: 22px; overflow: hidden; background: #202334; isolation: isolate; }
+.mini-art::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(17,19,27,.02) 38%, rgba(17,19,27,.16) 100%); }
+.mini-art img { width: 100%; height: 100%; display: block; object-fit: cover; transform: scale(1.012); filter: saturate(.74) brightness(.86) contrast(.98); }
+.food .mini-art img { object-position: center 54%; }
+.nature .mini-art img { object-position: center 58%; }
+.road .mini-art img { object-position: center 50%; }
 .example-card > div:last-child { padding: 0 8px 10px; }
 .tag { display: inline-block; margin-bottom: 14px; border-radius: 999px; padding: 6px 10px; background: rgba(165,151,177,.12); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
 .example-card h3 { font-size: 30px; letter-spacing: -.04em; margin-bottom: 10px; font-weight: 540; }
@@ -151,6 +153,7 @@ h2 { margin-bottom: 0; max-width: 780px; font-size: clamp(40px, 5.4vw, 72px); li
   .brand, .wordmark-large { background-image: linear-gradient(100deg, #f0947d 0%, #d19ab3 50%, #a7b3eb 100%); }
   .app-store-pill { background: #f4eff5; color: #151720; }
   .flow-card, .example-card { box-shadow: 0 18px 70px rgba(0,0,0,.08); }
+  .mini-art img { filter: saturate(.78) brightness(.84) contrast(1.02); }
   .social-link:hover { background: rgba(255,255,255,.07); }
 }
 
