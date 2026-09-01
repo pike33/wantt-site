@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'assets/favicon.svg'
+      - 'assets/wantt-app-icon.webp'
       - '.github/workflows/generate-favicons.yml'
   workflow_dispatch:
 
@@ -18,13 +18,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install SVG renderer
-        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+      - name: Install image renderer
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Generate PNG icons
         run: |
-          rsvg-convert -w 96 -h 96 assets/favicon.svg > assets/favicon-96.png
-          rsvg-convert -w 180 -h 180 assets/favicon.svg > assets/apple-touch-icon.png
+          convert assets/wantt-app-icon.webp -resize 96x96 assets/favicon-96.png
+          convert assets/wantt-app-icon.webp -resize 180x180 assets/apple-touch-icon.png
 
       - name: Commit generated icons
         run: |
