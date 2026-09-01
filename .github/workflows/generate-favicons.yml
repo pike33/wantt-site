@@ -1,0 +1,39 @@
+name: Generate favicons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/favicon.svg'
+      - '.github/workflows/generate-favicons.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install SVG renderer
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
+      - name: Generate PNG icons
+        run: |
+          rsvg-convert -w 96 -h 96 assets/favicon.svg > assets/favicon-96.png
+          rsvg-convert -w 180 -h 180 assets/favicon.svg > assets/apple-touch-icon.png
+
+      - name: Commit generated icons
+        run: |
+          if git diff --quiet -- assets/favicon-96.png assets/apple-touch-icon.png && git ls-files --error-unmatch assets/favicon-96.png assets/apple-touch-icon.png >/dev/null 2>&1; then
+            echo "Favicons already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/favicon-96.png assets/apple-touch-icon.png
+          git commit -m "Generate raster favicons"
+          git push
