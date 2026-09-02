@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 3238)
+Total output lines: 179
+
 ---
 ---
 <!doctype html>
@@ -35,88 +38,7 @@
   <div class="page-glow glow-two" aria-hidden="true"></div>
 
   <header class="site-header shell">
-    <a class="brand" href="/" aria-label="Wantt home">wantt</a>
-    <span class="status">changelog</span>
-  </header>
-
-  <main class="changelog shell">
-    <header class="changelog-intro">
-      <p class="eyebrow">building wantt</p>
-      <h1>Changelog</h1>
-      <p class="lede">A simple record of what changed in Wantt, what we learned, and where it goes next.</p>
-    </header>
-
-    <section class="changelog-list" aria-label="Wantt changelog entries">
-      <article class="change-entry">
-        <div class="change-date">31 Aug 2026</div>
-        <div class="change-body">
-          <div class="change-meta">
-            <span class="change-kicker">Product polish</span>
-            <span class="change-version">v0.4.0</span>
-          </div>
-          <h2>Wantt starts to feel like Wantt</h2>
-          <p>Build 8 was the first deliberate product-quality pass across the main Wantt experience. The foundations were already working; this release focused on making the app clearer, more useful and much closer to the product we actually want people to use.</p>
-          <ul>
-            <li>Renamed Trips to Plans across the user-facing experience</li>
-            <li>Redesigned the Saves and Plans overviews for a denser, more content-first library</li>
-            <li>Cleaned up primary navigation, back behaviour and screen hierarchy</li>
-            <li>Reworked Save Detail so useful place, things-to-try and Plan information leads, with Instagram treated as supporting source content</li>
-            <li>Polished Plan Detail across both List and Map views, including a new Wantt map-marker treatment</li>
-            <li>Added the updated Wantt app icon to the real TestFlight build</li>
-            <li>Established a backend-first production verification process for future releases that change APIs or data models</li>
-          </ul>
-          <p>The release passed its wider physical-iPhone review: existing Saves and Plans survived the upgrade, Share Sheet capture and enrichment continued to work, the new detail hierarchy held up on-device, and the map interactions behaved as intended.</p>
-          <p>One issue did survive the release. Manual Plan reordering did not work reliably on a physical iPhone. A replacement TestFlight binary — Build 9 — was produced to address it, but the behaviour remained effectively unchanged. Rather than keep burning release cycles on a non-critical bug, v0.4.0 was accepted with Plan reordering recorded as a known issue and deferred to the next build.</p>
-          <p class="change-next"><strong>Next:</strong> fix Plan reordering, then keep improving the reliability and intelligence behind what a save can become.</p>
-        </div>
-      </article>
-
-      <article class="change-entry">
-        <div class="change-date">30 Aug 2026</div>
-        <div class="change-body">
-          <div class="change-meta">
-            <span class="change-kicker">Account foundation</span>
-            <span class="change-version">v0.3.0</span>
-          </div>
-          <h2>Wantt gets real user accounts</h2>
-          <p>Build 7 gives Wantt its first proper account foundation. Sign in with Apple is now part of the TestFlight app, while the experience remains local-first and still works without forcing people through a login wall.</p>
-          <ul>
-            <li>Sign in with Apple is now available in Settings</li>
-            <li>Existing Saves and Trips stay intact when you sign in or out</li>
-            <li>Anonymous use still works, and signing back in with the same Apple Account returns you to the same Wantt account</li>
-            <li>Behind the scenes, account ownership, diagnostics and app-to-server checks were hardened so multiple testers can use Wantt safely and failures are easier to diagnose</li>
-          </ul>
-          <p>Engineering and deployment are complete, and the main production journey has passed on the first physical iPhone: share a new Reel, see it save immediately, enrich it, reopen the app and find the result still there.</p>
-          <p>Build 7 is <strong>conditionally accepted</strong> for now. The remaining check is deliberately simple but important: put the same TestFlight build on a second person's iPhone and confirm that the two users' Wantt data stays separate. That test is waiting on Apple's external TestFlight review.</p>
-          <p class="change-next"><strong>Next:</strong> finish the two-user check, then start making Wantt feel much more like the product it wants to become.</p>
-        </div>
-      </article>
-
-      <article class="change-entry">
-        <div class="change-date">28 Aug 2026</div>
-        <div class="change-body">
-          <div class="change-meta">
-            <span class="change-kicker">Product foundation</span>
-            <span class="change-version">v0.2.0 → v0.2.1</span>
-          </div>
-          <h2>A save can become more than one thing</h2>
-          <p>The biggest change so far was mostly under the surface. Wantt's original model treated a saved post as something fairly simple, often a single place. Real saves are not that tidy.</p>
-          <p>We rebuilt the underlying model so one post can contain multiple recommendations and things worth trying, while different shares of the same source can converge on the same canonical content. The app also moved onto a new versioned API with richer place information. That work first shipped as v0.2.0, with the release closeout landing as v0.2.1.</p>
-          <ul>
-            <li>Support multiple recommendations and things to try from a single saved post</li>
-            <li>Added canonical saves and stronger duplicate handling</li>
-            <li>Moved the app onto the new /v2 data path</li>
-            <li>Added richer place metadata, including opening hours and open-now state</li>
-            <li>Kept the previous TestFlight build compatible while the backend changed underneath it</li>
-            <li>Completed a release closeout and regression pass before accepting the new release state</li>
-          </ul>
-          <p>Getting there exposed an important distinction between merged and shipped. Some of the new code initially landed while the production backend was still running an older deployment, which left real saves stuck looking for a place match. Redeploying the current backend brought the product back into sync without requiring another TestFlight build.</p>
-          <p class="change-next"><strong>Next:</strong> spend less time rebuilding foundations and more time using Wantt as a real product.</p>
-        </div>
-      </article>
-
-      <article class="change-entry">
-        <div class="change-date">26 Aug 2026</div>
+    <a class="brand" href="/" aria-label="Wantt home">wantt…2238 tokens truncated…lass="change-date">26 Aug 2026</div>
         <div class="change-body">
           <span class="change-kicker">Website</span>
           <h2>wantt.io is live</h2>
