@@ -12,31 +12,155 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+  <div class="page-glow glow-one" aria-hidden="true"></div>
+  <div class="page-glow glow-two" aria-hidden="true"></div>
+
   <main class="admin-shell">
-    <section class="admin-card" aria-labelledby="admin-title">
+    <section id="auth-card" class="auth-card" aria-labelledby="admin-title">
       <div class="brand">wantt</div>
       <p class="eyebrow">private admin</p>
       <h1 id="admin-title">Wantt Admin</h1>
 
-      <div id="loading" class="state">
+      <div id="loading" class="auth-state">
         <p>Checking your admin session…</p>
       </div>
 
-      <div id="signed-out" class="state" hidden>
+      <div id="signed-out" class="auth-state" hidden>
         <p class="lede">Sign in with the authorised Wantt Google Workspace account.</p>
         <div id="google-signin"></div>
         <p id="auth-error" class="error" role="alert" hidden></p>
       </div>
+    </section>
 
-      <div id="signed-in" class="state" hidden>
-        <div class="success-mark" aria-hidden="true">✓</div>
-        <h2>Authenticated</h2>
-        <p id="identity" class="lede"></p>
-        <p class="muted">The admin shell is working. Production data views will be added separately.</p>
-        <button id="signout" type="button">Sign out</button>
-      </div>
+    <section id="app" class="app" hidden>
+      <header class="app-header">
+        <div>
+          <div class="brand brand-small">wantt</div>
+          <p class="eyebrow">private admin</p>
+        </div>
+        <div class="header-actions">
+          <span id="identity" class="identity"></span>
+          <button id="refresh" class="secondary-button" type="button">Refresh</button>
+          <button id="signout" class="secondary-button" type="button">Sign out</button>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Admin sections">
+        <button class="tab is-active" data-tab="enrichment" type="button">Enrichment</button>
+        <button class="tab" data-tab="places" type="button">Places</button>
+        <button class="tab" data-tab="accounts" type="button">Instagram Accounts</button>
+      </nav>
+
+      <section id="view-enrichment" class="view">
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">operations</p>
+            <h2>Enrichment Monitor</h2>
+            <p class="muted">Recent enrichment activity. Updates automatically while this page is open.</p>
+          </div>
+          <div class="live-indicator"><span></span> live · 5s</div>
+        </div>
+
+        <div id="summary" class="summary-grid" aria-label="Enrichment summary">
+          <article class="metric-card"><span>Active</span><strong id="metric-active">—</strong></article>
+          <article class="metric-card"><span>Needs help</span><strong id="metric-needs-help">—</strong></article>
+          <article class="metric-card"><span>Failed</span><strong id="metric-failed">—</strong></article>
+          <article class="metric-card"><span>Completed today</span><strong id="metric-completed">—</strong></article>
+        </div>
+
+        <div class="toolbar">
+          <div id="filters" class="filters" aria-label="Enrichment filters">
+            <button class="filter is-active" data-filter="all" type="button">All</button>
+            <button class="filter" data-filter="active" type="button">Active</button>
+            <button class="filter" data-filter="needs_confirmation" type="button">Needs help</button>
+            <button class="filter" data-filter="failed" type="button">Failed</button>
+            <button class="filter" data-filter="slow" type="button">Slow</button>
+            <button class="filter" data-filter="reuse" type="button">Reused</button>
+          </div>
+          <span id="last-updated" class="muted compact"></span>
+        </div>
+
+        <div id="enrichment-empty" class="empty-state" hidden>No enrichment requests match this filter.</div>
+        <div class="table-wrap">
+          <table id="enrichment-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Source</th>
+                <th>State</th>
+                <th>Elapsed</th>
+                <th>Place / candidate</th>
+                <th>Decision</th>
+                <th>Path</th>
+                <th>Saver</th>
+              </tr>
+            </thead>
+            <tbody id="enrichment-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-places" class="view" hidden>
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">discovery</p>
+            <h2>Places</h2>
+            <p class="muted">Active saves attributed to a Place. Explicit user confirmation wins over automatic recommendation.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Place</th>
+                <th>Active saves</th>
+                <th>Distinct savers</th>
+                <th>Source posts</th>
+                <th>Last saved</th>
+              </tr>
+            </thead>
+            <tbody id="places-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-accounts" class="view" hidden>
+        <div class="view-heading">
+          <div>
+            <p class="eyebrow">creator signal</p>
+            <h2>Instagram Accounts</h2>
+            <p class="muted">Aggregated from active saves. Saver identities are not exposed.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>Active saves</th>
+                <th>Distinct posts</th>
+                <th>Distinct savers</th>
+                <th>Last saved</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-body"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
   </main>
+
+  <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+  <aside id="detail-drawer" class="detail-drawer" aria-label="Enrichment detail" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">enrichment detail</p>
+        <h2 id="drawer-title">Request</h2>
+      </div>
+      <button id="drawer-close" class="icon-button" type="button" aria-label="Close">×</button>
+    </div>
+    <div id="drawer-content" class="drawer-content"></div>
+  </aside>
 
   <script src="/admin/admin.js" defer></script>
 </body>
