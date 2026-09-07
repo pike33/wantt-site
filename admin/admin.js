@@ -16,12 +16,47 @@
   const drawerBackdrop = $('drawer-backdrop');
   const drawerContent = $('drawer-content');
   const drawerTitle = $('drawer-title');
+  const drawerCopy = $('drawer-copy');
 
   let activeTab = 'enrichment';
   let activeFilter = 'all';
   let enrichmentRows = [];
   let pollTimer = null;
   let detailCaptureId = null;
+  let detailPayload = null;
+  let detailRequestToken = 0;
+  let copyResetTimer = null;
+
+  const copyIcon = `<svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+    <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+  </svg>`;
+  const checkIcon = `<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="m5 12 4 4L19 6"></path>
+  </svg>`;
+  const errorIcon = `<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 8v5"></path><path d="M12 17h.01"></path><circle cx="12" cy="12" r="9"></circle>
+  </svg>`;
+
+  const resetCopyButton = () => {
+    if (copyResetTimer) window.clearTimeout(copyResetTimer);
+    copyResetTimer = null;
+    drawerCopy.classList.remove('is-success', 'is-error');
+    drawerCopy.innerHTML = copyIcon;
+    drawerCopy.setAttribute('aria-label', 'Copy enrichment details');
+    drawerCopy.title = 'Copy enrichment details';
+  };
+
+  const showCopyState = (state) => {
+    if (copyResetTimer) window.clearTimeout(copyResetTimer);
+    drawerCopy.classList.toggle('is-success', state === 'success');
+    drawerCopy.classList.toggle('is-error', state === 'error');
+    drawerCopy.innerHTML = state === 'success' ? checkIcon : errorIcon;
+    const message = state === 'success' ? 'Enrichment details copied' : 'Copy failed. Try again';
+    drawerCopy.setAttribute('aria-label', message);
+    drawerCopy.title = message;
+    copyResetTimer = window.setTimeout(resetCopyButton, 1800);
+  };
 
   const api = async (path, options = {}) => {
     const headers = { ...(options.headers || {}) };
@@ -276,7 +311,11 @@
   </div>`;
 
   const openDetail = async (captureId) => {
+    const requestToken = ++detailRequestToken;
     detailCaptureId = captureId;
+    detailPayload = null;
+    resetCopyButton();
+    drawerCopy.disabled = true;
     drawerTitle.textContent = captureId.slice(0, 12);
     drawerContent.innerHTML = '<p class="muted">Loading diagnostic detail…</p>';
     drawerBackdrop.hidden = false;
@@ -284,11 +323,14 @@
     drawer.setAttribute('aria-hidden', 'false');
 
     const result = await api(`/admin/api/enrichment/${encodeURIComponent(captureId)}`);
+    if (requestToken !== detailRequestToken || detailCaptureId !== captureId) return;
     if (!result.response.ok) {
       drawerContent.innerHTML = '<p class="error">Could not load this enrichment request.</p>';
       return;
     }
     const d = result.body;
+    detailPayload = d;
+    drawerCopy.disabled = false;
     const r = d.request || {};
     const source = d.source || {};
     const decision = d.decision || {};
@@ -371,7 +413,11 @@
   };
 
   const closeDetail = () => {
+    detailRequestToken += 1;
     detailCaptureId = null;
+    detailPayload = null;
+    drawerCopy.disabled = true;
+    resetCopyButton();
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
     drawerBackdrop.hidden = true;
@@ -408,6 +454,18 @@
   });
 
   refreshButton.addEventListener('click', refreshActiveView);
+  drawerCopy.addEventListener('click', async () => {
+    if (!detailCaptureId || !detailPayload || drawerCopy.disabled) return;
+
+    const text = `Wantt enrichment diagnostic\nCapture ID: ${detailCaptureId}\nCopied: ${new Date().toISOString()}\n\n${JSON.stringify(detailPayload, null, 2)}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      showCopyState('success');
+    } catch (error) {
+      console.error('[wantt-admin] Could not copy enrichment detail', error);
+      showCopyState('error');
+    }
+  });
   $('drawer-close').addEventListener('click', closeDetail);
   drawerBackdrop.addEventListener('click', closeDetail);
   document.addEventListener('keydown', (event) => {
