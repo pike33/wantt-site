@@ -48,6 +48,27 @@
 
     <section class="changelog-list" aria-label="Wantt changelog entries">
       <article class="change-entry">
+        <div class="change-date">17 Sep 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Place delivery and sharing</span>
+            <span class="change-version">v0.6.2</span>
+          </div>
+          <h2>Places stay visible while details load</h2>
+          <p>Build 13 is now in TestFlight as Wantt 0.6.2 (build 16). Once Wantt has enough evidence for a real-world Place, it can show that Place before every supporting detail has finished processing.</p>
+          <ul>
+            <li>Show a trusted Place as soon as it is confirmed, rather than waiting for all enrichment to finish</li>
+            <li>Keep that Place available if secondary details take longer or cannot be completed</li>
+            <li>Preserve the most advanced Place state through backgrounding, refreshing and reopening the app</li>
+            <li>Made Instagram Share Sheet saves more reliable when Wantt is not already open</li>
+            <li>Fixed note editing so unsaved changes remain available until you explicitly save or discard them</li>
+          </ul>
+          <p>The boundary is deliberately simple: a trusted Place is already useful. Wantt can continue adding details quietly, but it should not take away the place you saved just because one later step is slow or unavailable.</p>
+          <p class="change-next"><strong>Next:</strong> build on this more dependable Place foundation with clearer visual presentation of what you have saved.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">9 Sep 2026</div>
         <div class="change-body">
           <div class="change-meta">
