@@ -114,6 +114,11 @@ h3 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
   font-size: 13px;
   font-weight: 650;
 }
+.developer-diagnostics-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
 .secondary-button:hover, .icon-button:hover { border-color: var(--accent); }
 .tabs {
   display: flex;
