@@ -338,6 +338,7 @@
     const attempts = Array.isArray(d.attempts) ? d.attempts : [];
     const recommendations = Array.isArray(d.recommendations) ? d.recommendations : [];
     const manual = d.manualConfirmation || null;
+    const representativeImageDiagnostic = d.representativeImageDiagnostic || null;
 
     const stages = [];
     stages.push(timelineItem('Captured', formatDateTime(r.createdAt)));
@@ -404,6 +405,11 @@
       </section>
 
       ${manual ? `<section class="detail-section"><h3>Manual authority</h3><pre>${escapeHtml(pretty(manual))}</pre></section>` : ''}
+
+      ${representativeImageDiagnostic ? `<section class="detail-section">
+        <h3>Representative image</h3>
+        <pre>${escapeHtml(pretty(representativeImageDiagnostic))}</pre>
+      </section>` : ''}
 
       <section class="detail-section">
         <h3>Durable evidence</h3>
