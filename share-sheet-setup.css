@@ -1,0 +1,53 @@
+.setup-page { padding: 58px 0 112px; }
+.setup-intro { max-width: 790px; margin-bottom: 82px; }
+.setup-intro h1 { margin-bottom: 24px; }
+
+.setup-steps { display: grid; gap: 72px; }
+.setup-step { display: grid; grid-template-columns: minmax(0, .9fr) minmax(270px, 1.1fr); gap: clamp(28px, 7vw, 104px); align-items: center; }
+.setup-step:nth-child(even) { grid-template-columns: minmax(270px, 1.1fr) minmax(0, .9fr); }
+.setup-step:nth-child(even) .setup-copy { order: 2; }
+.setup-step:nth-child(even) .setup-shot { order: 1; }
+.setup-number { display: inline-block; margin-bottom: 18px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: .12em; }
+.setup-copy h2 { margin: 0 0 14px; font-size: clamp(34px, 4vw, 56px); line-height: 1; letter-spacing: -.055em; }
+.setup-copy p, .setup-complete p, .setup-troubleshooting p { color: var(--muted); font-size: 18px; line-height: 1.6; }
+
+.setup-shot { width: min(100%, 328px); margin: 0 auto; }
+.setup-shot .setup-screenshot { display: block; width: 100%; height: auto; border: 8px solid #222531; border-radius: 40px; box-shadow: 0 24px 52px rgba(43, 42, 53, .19); }
+.setup-device { position: relative; min-height: 510px; overflow: hidden; padding: 58px 20px 24px; border: 8px solid #222531; border-radius: 40px; background: #f5f3ef; box-shadow: 0 24px 52px rgba(43, 42, 53, .19); color: #20212a; }
+.device-island { position: absolute; z-index: 2; top: 9px; left: 50%; width: 94px; height: 20px; transform: translateX(-50%); border-radius: 99px; background: #222531; }
+.setup-shot figcaption { margin: 14px -20px 0; color: var(--muted); font-size: 13px; line-height: 1.45; text-align: center; }
+.placeholder-note { position: absolute; right: 16px; bottom: 16px; border-radius: 999px; padding: 7px 10px; background: rgba(32,33,42,.09); color: #6f6e75; font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+
+.placeholder-topline { width: 46%; height: 12px; margin: 6px auto 22px; border-radius: 99px; background: #d8d6d3; }
+.placeholder-card { height: 226px; border-radius: 21px; background: linear-gradient(145deg, #d5aa88, #ebd3c2 44%, #9cadcf); }
+.sheet-preview { position: absolute; right: -1px; bottom: -1px; left: -1px; min-height: 176px; padding: 20px 18px; border-top: 1px solid #dedbd7; border-radius: 27px 27px 0 0; background: rgba(255,255,255,.94); }
+.sheet-title { display: block; margin-bottom: 18px; color: #66656c; font-size: 13px; }
+.app-row { display: flex; align-items: flex-start; gap: 11px; }
+.app-row i { display: block; width: 36px; height: 36px; border-radius: 11px; background: linear-gradient(140deg, #e9937f, #b7aed8); }
+.app-row i:nth-child(2) { background: #d8d6d2; }.app-row i:nth-child(3) { background: #a7badb; }.app-row i:nth-child(4) { background: #cab48e; }
+.app-row b { margin-left: auto; padding-top: 9px; color: #276ce0; font-size: 13px; }
+
+.setup-edit, .setup-favourite { background: #f7f6f3; }
+.edit-header, .favourite-header { display: flex; justify-content: space-between; align-items: center; padding: 7px 2px 22px; border-bottom: 1px solid #e0ddda; font-size: 15px; }
+.edit-header span, .favourite-header span { color: #276ce0; }
+.edit-row, .favourite-row { display: flex; align-items: center; gap: 12px; min-height: 62px; border-bottom: 1px solid #e4e1de; font-size: 15px; }
+.edit-row i, .favourite-row i { display: grid; width: 31px; height: 31px; flex: 0 0 31px; place-items: center; border-radius: 9px; background: #d9d7d4; color: white; font-style: normal; font-weight: 700; }
+.edit-row:nth-child(3) i { background: linear-gradient(140deg, #e9937f, #aab8de); }
+.wantt-row { margin: 14px -7px; padding: 0 7px; border: 1px solid #e5e2de; border-radius: 13px; background: white; }
+.wantt-row i, .favourite-row i { background: linear-gradient(140deg, #e9937f, #aab8de); }
+.edit-row em { margin-left: auto; color: #e1766b; font-size: 22px; font-style: normal; }.wantt-row em { color: #2b75e7; }
+.favourite-row { border-bottom-color: #e1dedb; }.favourite-row em { margin-left: auto; color: #9a9794; font-size: 16px; font-style: normal; }.favourite-row.faint { color: #67666c; }
+
+.setup-complete { max-width: 680px; margin: 106px auto; padding: 42px 0; text-align: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.setup-complete .eyebrow { margin-bottom: 12px; }.setup-complete h2 { margin-bottom: 16px; font-size: clamp(45px, 6vw, 74px); }.setup-complete p { max-width: 530px; margin: 0 auto; }
+.setup-next { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; padding: 46px; border: 1px solid var(--line); border-radius: 34px; background: var(--surface); box-shadow: 0 14px 55px rgba(70,62,80,.05); }
+.setup-next .eyebrow { margin-bottom: 10px; }.setup-next h2 { font-size: clamp(34px, 4vw, 54px); }.setup-link { display: inline-flex; align-items: center; gap: 10px; flex: 0 0 auto; color: var(--text); font-size: 16px; font-weight: 620; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .22em; }.setup-link span { color: #c76b5d; font-size: 22px; }.setup-link:hover { color: #c76b5d; }
+.setup-troubleshooting { max-width: 680px; margin: 64px auto 0; padding: 0 4px; }.setup-troubleshooting h2 { margin-bottom: 10px; font-size: 24px; letter-spacing: -.035em; }.setup-troubleshooting p { margin: 0; font-size: 15px; }
+
+@media (prefers-color-scheme: dark) {
+  .setup-device { border-color: #343846; background: #e9e7e3; box-shadow: 0 28px 68px rgba(0,0,0,.3); }.device-island { background: #343846; }.setup-next { box-shadow: 0 18px 70px rgba(0,0,0,.08); }
+}
+
+@media (max-width: 720px) {
+  .setup-page { padding-top: 38px; }.setup-intro { margin-bottom: 62px; }.setup-steps { gap: 58px; }.setup-step, .setup-step:nth-child(even) { grid-template-columns: 1fr; gap: 28px; }.setup-step:nth-child(even) .setup-copy, .setup-step:nth-child(even) .setup-shot { order: initial; }.setup-copy h2 { font-size: 38px; }.setup-copy p { font-size: 17px; }.setup-device { min-height: 490px; }.setup-complete { margin: 78px auto; }.setup-next { align-items: flex-start; flex-direction: column; padding: 30px 26px; gap: 22px; }.setup-troubleshooting { margin-top: 48px; }
+}
