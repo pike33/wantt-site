@@ -43,8 +43,8 @@
     copyResetTimer = null;
     drawerCopy.classList.remove('is-success', 'is-error');
     drawerCopy.innerHTML = copyIcon;
-    drawerCopy.setAttribute('aria-label', 'Copy enrichment details');
-    drawerCopy.title = 'Copy enrichment details';
+    drawerCopy.setAttribute('aria-label', 'Copy diagnostic case file');
+    drawerCopy.title = 'Copy diagnostic case file';
   };
 
   const showCopyState = (state) => {
@@ -52,7 +52,7 @@
     drawerCopy.classList.toggle('is-success', state === 'success');
     drawerCopy.classList.toggle('is-error', state === 'error');
     drawerCopy.innerHTML = state === 'success' ? checkIcon : errorIcon;
-    const message = state === 'success' ? 'Enrichment details copied' : 'Copy failed. Try again';
+    const message = state === 'success' ? 'Diagnostic case file copied' : 'Could not copy case file';
     drawerCopy.setAttribute('aria-label', message);
     drawerCopy.title = message;
     copyResetTimer = window.setTimeout(resetCopyButton, 1800);
@@ -125,6 +125,203 @@
     no_match: 'no match',
     provider_error: 'provider error',
   }[reason] || reason || '—');
+
+  const taskLabel = (task) => ({
+    source_fetch: 'Source fetched',
+    transcript: 'Transcript',
+    source_media: 'Source media',
+    place_direct_validation: 'Direct Place validation',
+    place_discovery: 'Place discovery',
+    candidate_search: 'Google candidate search',
+    place_decision: 'Place decision',
+    primary_persistence: 'Primary persistence',
+    rich_extraction: 'Rich extraction',
+    secondary_place: 'Secondary Places',
+    rich_persistence: 'Rich persistence',
+    representative_image: 'Representative image',
+    manual_confirmation: 'Manual confirmation',
+    manual_retry: 'Manual retry',
+    terminal_state: 'Terminal state',
+  }[task] || task || 'Lifecycle event');
+
+  const getTraceState = (detail) => {
+    const trace = detail?.diagnostics?.trace;
+    if (!trace || !['recorded', 'not_recorded', 'invalid'].includes(trace.availability)) {
+      return {
+        availability: 'not_recorded',
+        schemaVersion: null,
+        droppedEvents: 0,
+        events: [],
+      };
+    }
+    return {
+      availability: trace.availability,
+      schemaVersion: trace.schemaVersion ?? null,
+      droppedEvents: trace.droppedEvents ?? (trace.availability === 'recorded' ? 0 : null),
+      events: trace.availability === 'recorded' && Array.isArray(trace.events) ? trace.events : [],
+    };
+  };
+
+  const authoritySummary = (trace, manual) => {
+    if (manual) return 'Manual';
+    if (trace.availability === 'recorded'
+      && trace.events.some((event) => event.authorityAfter === 'automatic')) {
+      return 'Automatic';
+    }
+    return trace.availability === 'recorded' ? 'None' : '—';
+  };
+
+  const trustedPrimaryDuration = (request, trace) => {
+    if (trace.availability !== 'recorded' || !request?.createdAt) return null;
+    const start = new Date(request.createdAt).getTime();
+    if (!Number.isFinite(start)) return null;
+    const authorityTimes = trace.events
+      .filter((event) => event.authorityAfter === 'automatic' || event.authorityAfter === 'manual')
+      .map((event) => new Date(event.at).getTime())
+      .filter(Number.isFinite);
+    if (!authorityTimes.length) return null;
+    const elapsed = Math.min(...authorityTimes) - start;
+    return elapsed >= 0 ? elapsed : null;
+  };
+
+  const richCompletionSummary = (trace) => {
+    if (trace.availability !== 'recorded') return 'Not recorded';
+    const rich = trace.events.filter((event) => event.lane === 'rich');
+    let lastSuccess = -1;
+    let lastFailure = -1;
+    rich.forEach((event, index) => {
+      if (
+        event.task === 'rich_persistence'
+        && event.event === 'completed'
+        && (
+          event.outcome === 'persisted'
+          || event.outcome === 'succeeded'
+          || event.outputSummary?.persisted === true
+        )
+      ) {
+        lastSuccess = index;
+      }
+      if (
+        event.event === 'failed'
+        && (
+          event.outcome === 'permanent_failure'
+          || event.outcome === 'failed'
+          || event.reason === 'retry_exhausted'
+          || event.reason === 'attempt_limit'
+          || event.reason === 'time_budget'
+        )
+      ) {
+        lastFailure = index;
+      }
+    });
+    if (lastFailure > lastSuccess) return 'Failed';
+    if (lastSuccess >= 0) return 'Complete';
+    return rich.some((event) => event.event !== 'skipped') ? 'Partial' : 'Not recorded';
+  };
+
+  const compactEvidenceForDisplay = (evidence, trace) => {
+    const display = evidence && typeof evidence === 'object' && !Array.isArray(evidence)
+      ? { ...evidence }
+      : {};
+    display.diagnosticTraceV1 = trace.availability === 'recorded'
+      ? {
+          availability: 'recorded',
+          schemaVersion: trace.schemaVersion,
+          eventCount: trace.events.length,
+          droppedEvents: trace.droppedEvents,
+        }
+      : {
+          availability: trace.availability,
+          schemaVersion: trace.schemaVersion,
+        };
+    return display;
+  };
+
+  const traceEventTitle = (event) => {
+    if (event.task === 'source_fetch' && event.event === 'reused') return 'Source reused';
+    if (event.task === 'terminal_state' && event.event === 'reused' && event.outcome === 'enriched') {
+      return 'Enriched from reusable canonical state';
+    }
+    return taskLabel(event.task);
+  };
+
+  const traceTone = (event) => {
+    if (
+      event.event === 'failed'
+      || ['failed', 'permanent_failure', 'retryable_failure'].includes(event.outcome)
+    ) return 'failed';
+    if (event.authorityAfter === 'manual') return 'manual';
+    if (
+      ['trusted', 'persisted', 'enriched', 'succeeded'].includes(event.outcome)
+      || event.outputSummary?.persisted === true
+    ) return 'success';
+    return 'neutral';
+  };
+
+  const traceEventDetails = (event) => {
+    const parts = [];
+    if (event.event) parts.push(event.event);
+    if (event.outcome) parts.push(event.outcome);
+    if (event.provider) parts.push(event.provider);
+    if (event.route) parts.push(event.route);
+    if (event.requestedModel || event.servedModel) {
+      const requested = event.requestedModel || '—';
+      const served = event.servedModel || requested;
+      parts.push(requested === served ? served : `${requested} → ${served}`);
+    }
+    if (Number.isFinite(Number(event.durationMs))) {
+      parts.push(formatDuration(event.durationMs));
+    }
+    if (Number.isInteger(event.retryCycle)) parts.push(`cycle ${event.retryCycle}`);
+    if (Number.isInteger(event.attemptNo)) parts.push(`attempt ${event.attemptNo}`);
+    if (Number.isInteger(event.providerAttemptNo)) {
+      parts.push(`provider attempt ${event.providerAttemptNo}`);
+    }
+    if (Number.isInteger(event.continuationGeneration)) {
+      parts.push(`continuation ${event.continuationGeneration}`);
+    }
+    if (event.authorityBefore || event.authorityAfter) {
+      parts.push(`authority ${event.authorityBefore || '—'} → ${event.authorityAfter || '—'}`);
+    }
+    const input = event.inputSummary || {};
+    const output = event.outputSummary || {};
+    if (Number.isInteger(input.candidateCount)) parts.push(`${input.candidateCount} input candidates`);
+    if (Number.isInteger(input.mediaCount)) parts.push(`${input.mediaCount} media`);
+    if (Number.isInteger(output.candidateCount)) parts.push(`${output.candidateCount} candidates`);
+    if (Number.isInteger(output.resolvedCount)) parts.push(`${output.resolvedCount} resolved`);
+    if (Number.isInteger(output.thingCount)) parts.push(`${output.thingCount} Things`);
+    if (Number.isInteger(output.omittedCount)) parts.push(`${output.omittedCount} omitted`);
+    if (Number.isFinite(Number(output.selectedProbability))) {
+      parts.push(`p ${Number(output.selectedProbability).toFixed(2)}`);
+    }
+    if (Number.isFinite(Number(output.trustThreshold))) {
+      parts.push(`threshold ${Number(output.trustThreshold).toFixed(2)}`);
+    }
+    if (event.failure?.classification) parts.push(event.failure.classification);
+    if (Number.isInteger(event.usage?.inputTokens)) {
+      parts.push(`${event.usage.inputTokens} input tokens`);
+    }
+    if (Number.isInteger(event.usage?.outputTokens)) {
+      parts.push(`${event.usage.outputTokens} output tokens`);
+    }
+    if (event.reason) parts.push(event.reason);
+    return parts;
+  };
+
+  const renderTraceEvent = (event) => {
+    const tone = traceTone(event);
+    const parts = traceEventDetails(event);
+    return `<div class="lifecycle-event lifecycle-event-${escapeHtml(tone)}">
+      <span class="lifecycle-dot" aria-hidden="true"></span>
+      <div class="lifecycle-body">
+        <div class="lifecycle-heading">
+          <strong>${escapeHtml(traceEventTitle(event))}</strong>
+          <time>${escapeHtml(formatDateTime(event.at))}</time>
+        </div>
+        ${parts.length ? `<div class="trace-chips">${parts.map((part) => `<span class="trace-chip">${escapeHtml(part)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  };
 
   const showSignedOut = () => {
     authCard.hidden = false;
@@ -305,10 +502,28 @@
     }
   };
 
-  const timelineItem = (title, detail) => `<div class="timeline-item">
-    <span class="timeline-dot"></span>
-    <div><strong>${escapeHtml(title)}</strong><small>${escapeHtml(detail)}</small></div>
-  </div>`;
+  const renderLifecycle = (trace) => {
+    if (trace.availability === 'not_recorded') {
+      return `<div class="trace-notice">
+        <strong>Lifecycle trace not recorded for this capture.</strong>
+        <span>This is expected for captures created before lifecycle tracing was available.</span>
+      </div>`;
+    }
+    if (trace.availability === 'invalid') {
+      const version = trace.schemaVersion === null ? '' : ` Stored schema: v${trace.schemaVersion}.`;
+      return `<div class="trace-notice trace-notice-warning">
+        <strong>Lifecycle trace is unavailable because the stored diagnostic record is invalid.</strong>
+        <span>${escapeHtml(version)}</span>
+      </div>`;
+    }
+    const dropped = Number(trace.droppedEvents) > 0
+      ? ` · ${trace.droppedEvents} older events dropped`
+      : '';
+    return `
+      <p class="trace-meta">Trace v${escapeHtml(trace.schemaVersion)} · ${trace.events.length} events${escapeHtml(dropped)}</p>
+      <div class="lifecycle">${trace.events.map(renderTraceEvent).join('')}</div>
+    `;
+  };
 
   const openDetail = async (captureId) => {
     const requestToken = ++detailRequestToken;
@@ -339,31 +554,28 @@
     const recommendations = Array.isArray(d.recommendations) ? d.recommendations : [];
     const manual = d.manualConfirmation || null;
     const representativeImageDiagnostic = d.representativeImageDiagnostic || null;
-
-    const stages = [];
-    stages.push(timelineItem('Captured', formatDateTime(r.createdAt)));
-    if (d.evidenceMilestones?.layer1FetchedAt) stages.push(timelineItem('Instagram evidence fetched', formatDateTime(d.evidenceMilestones.layer1FetchedAt)));
-    if (d.evidenceMilestones?.layer2FetchedAt) stages.push(timelineItem('Transcript stage completed', formatDateTime(d.evidenceMilestones.layer2FetchedAt)));
-    if (extraction) stages.push(timelineItem('xAI extraction persisted', `confidence ${Number(extraction.confidence ?? decision.extractionConfidence ?? 0).toFixed(2)} · ${extraction.venueName || 'no primary venue'}`));
-    if (decision.decisionReason) stages.push(timelineItem('Place decision', `${decisionLabel(decision.decisionReason)}${decision.placesClassification ? ` · ${decision.placesClassification}` : ''}`));
-    attempts.forEach((a) => stages.push(timelineItem(
-      `Cycle ${a.cycle} · attempt ${a.attemptNo} · ${a.outcome}`,
-      `${formatDateTime(a.occurredAt)}${a.errorMessage ? ` · ${a.errorMessage}` : ''}`
-    )));
-    if (manual) stages.push(timelineItem('Manual Place confirmation', `${manual.name || 'Place'} · ${formatDateTime(manual.confirmedAt)}`));
-    stages.push(timelineItem(`Current state: ${statusLabel(r.status)}`, formatDateTime(r.updatedAt)));
+    const trace = getTraceState(d);
+    const authority = authoritySummary(trace, manual);
+    const primaryMs = trustedPrimaryDuration(r, trace);
+    const rich = richCompletionSummary(trace);
+    const displayEvidence = compactEvidenceForDisplay(d.evidence, trace);
 
     drawerContent.innerHTML = `
       <div class="detail-grid">
-        <div class="detail-stat"><span>Status</span><strong>${escapeHtml(statusLabel(r.status))}</strong></div>
-        <div class="detail-stat"><span>Path</span><strong>${escapeHtml(d.path || '—')}</strong></div>
-        <div class="detail-stat"><span>Elapsed</span><strong>${escapeHtml(formatDuration(r.elapsedMs))}</strong></div>
-        <div class="detail-stat"><span>Saver</span><strong>${escapeHtml(d.saverPseudoId || 'anonymous')}</strong></div>
+        <div class="detail-stat"><span>State</span><strong>${escapeHtml(statusLabel(r.status))}</strong></div>
+        <div class="detail-stat"><span>Authority</span><strong>${escapeHtml(authority)}</strong></div>
+        <div class="detail-stat"><span>Primary</span><strong>${escapeHtml(formatDuration(primaryMs))}</strong></div>
+        <div class="detail-stat"><span>Rich</span><strong>${escapeHtml(rich)}</strong></div>
       </div>
+      <p class="detail-meta">
+        Path ${escapeHtml(d.path || '—')} ·
+        Elapsed ${escapeHtml(formatDuration(r.elapsedMs))} ·
+        Saver ${escapeHtml(d.saverPseudoId || 'anonymous')}
+      </p>
 
-      <section class="detail-section">
-        <h3>Journey</h3>
-        <div class="timeline">${stages.join('')}</div>
+      <section class="detail-section lifecycle-section">
+        <h3>Lifecycle</h3>
+        ${renderLifecycle(trace)}
       </section>
 
       <section class="detail-section">
@@ -380,7 +592,7 @@
       </section>
 
       <section class="detail-section">
-        <h3>xAI extraction</h3>
+        <h3>Rich extraction</h3>
         <pre>${escapeHtml(pretty(extraction))}</pre>
       </section>
 
@@ -413,7 +625,7 @@
 
       <section class="detail-section">
         <h3>Durable evidence</h3>
-        <pre>${escapeHtml(pretty(d.evidence))}</pre>
+        <pre>${escapeHtml(pretty(displayEvidence))}</pre>
       </section>
     `;
   };
@@ -463,12 +675,33 @@
   drawerCopy.addEventListener('click', async () => {
     if (!detailCaptureId || !detailPayload || drawerCopy.disabled) return;
 
-    const text = `Wantt enrichment diagnostic\nCapture ID: ${detailCaptureId}\nCopied: ${new Date().toISOString()}\n\n${JSON.stringify(detailPayload, null, 2)}`;
+    const captureId = detailCaptureId;
+    const requestToken = detailRequestToken;
+    drawerCopy.disabled = true;
     try {
-      await navigator.clipboard.writeText(text);
+      const result = await api(
+        `/admin/api/enrichment/${encodeURIComponent(captureId)}/case-file`,
+      );
+      if (requestToken !== detailRequestToken || detailCaptureId !== captureId) return;
+
+      if (!result.response.ok) {
+        if (result.response.status === 401 || result.response.status === 403) {
+          await requireSession();
+        }
+        if (requestToken === detailRequestToken && detailCaptureId === captureId) {
+          drawerCopy.disabled = false;
+          showCopyState('error');
+        }
+        return;
+      }
+
+      await navigator.clipboard.writeText(JSON.stringify(result.body, null, 2));
+      if (requestToken !== detailRequestToken || detailCaptureId !== captureId) return;
+      drawerCopy.disabled = false;
       showCopyState('success');
-    } catch (error) {
-      console.error('[wantt-admin] Could not copy enrichment detail', error);
+    } catch {
+      if (requestToken !== detailRequestToken || detailCaptureId !== captureId) return;
+      drawerCopy.disabled = false;
       showCopyState('error');
     }
   });
