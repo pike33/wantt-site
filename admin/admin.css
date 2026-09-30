@@ -330,3 +330,98 @@ pre {
   .drawer-header { padding: 20px 18px 16px; gap: 12px; }
   .drawer-content { padding: 20px 18px 44px; }
 }
+
+
+.detail-meta {
+  margin: -10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.trace-meta {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.trace-notice {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px;
+  background: rgba(127,127,127,.04);
+}
+.trace-notice strong { font-size: 13px; }
+.trace-notice span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.trace-notice-warning {
+  border-color: color-mix(in srgb, var(--warning) 35%, var(--line));
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+}
+.lifecycle {
+  display: grid;
+  gap: 8px;
+}
+.lifecycle-event {
+  display: grid;
+  grid-template-columns: 10px minmax(0,1fr);
+  gap: 11px;
+  align-items: start;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(127,127,127,.025);
+}
+.lifecycle-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+.lifecycle-event-success .lifecycle-dot { background: var(--success); }
+.lifecycle-event-failed .lifecycle-dot { background: var(--danger); }
+.lifecycle-event-manual .lifecycle-dot { background: var(--accent); }
+.lifecycle-event-failed {
+  border-color: color-mix(in srgb, var(--danger) 28%, var(--line));
+}
+.lifecycle-event-manual {
+  border-color: color-mix(in srgb, var(--accent) 26%, var(--line));
+}
+.lifecycle-body { min-width: 0; }
+.lifecycle-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+.lifecycle-heading strong { font-size: 13px; }
+.lifecycle-heading time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 10px;
+}
+.trace-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+.trace-chip {
+  display: inline-flex;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: var(--muted);
+  background: rgba(127,127,127,.035);
+  font-size: 10px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 520px) {
+  .lifecycle-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
