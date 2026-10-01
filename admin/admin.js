@@ -291,6 +291,12 @@
     if (Number.isInteger(output.resolvedCount)) parts.push(`${output.resolvedCount} resolved`);
     if (Number.isInteger(output.thingCount)) parts.push(`${output.thingCount} Things`);
     if (Number.isInteger(output.omittedCount)) parts.push(`${output.omittedCount} omitted`);
+    if (output.selectedChoice === 'none_supported') parts.push('none supported');
+    if (output.selectedChoice === 'candidate') {
+      parts.push(Number.isInteger(output.selectedCandidateIndex)
+        ? `candidate ${output.selectedCandidateIndex}`
+        : 'candidate');
+    }
     if (Number.isFinite(Number(output.selectedProbability))) {
       parts.push(`p ${Number(output.selectedProbability).toFixed(2)}`);
     }
