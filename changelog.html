@@ -54,7 +54,7 @@
             <span class="change-kicker">Enrichment architecture</span>
             <span class="change-version">v0.8.0</span>
           </div>
-          <h2>Place decisions now run on a faster enrichment system</h2>
+          <h2>JEV now decides which Place a save refers to</h2>
           <p>Wantt 0.8.0 changes how a saved post becomes a Place. Source capture, Place identification and useful details now run as separate parts of the enrichment process. JEV makes the bounded Place decision, helping Wantt reach a trusted result much sooner while deeper information can continue to arrive.</p>
           <ul>
             <li>JEV now decides which supported real-world Place a saved post refers to using a faster, bounded path</li>
@@ -63,7 +63,7 @@
             <li>Expanded internal diagnostics so individual saves are easier to trace and improve</li>
             <li>Removed the transient offline banner while preserving contextual network-error handling</li>
           </ul>
-          <p>This release changes the system behind Wantt more than the screens you see. It provides the faster foundation for improving Place coverage and the quality of Things to Try in the releases that follow.</p>
+          <p>In the Build 21 A/B evaluation, median (p50) Rich extraction took about 0.4 seconds with JEV, versus about 51 seconds on the xAI-first path. That measures the Rich extraction step, not the full journey from save to Place. Place coverage still needs improvement.</p>
           <p class="change-next"><strong>Next:</strong> recover more venue candidates from difficult posts and improve the fidelity of Things to Try without giving up the speed gained here.</p>
         </div>
       </article>
