@@ -48,6 +48,27 @@
 
     <section class="changelog-list" aria-label="Wantt changelog entries">
       <article class="change-entry">
+        <div class="change-date">3 Oct 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Enrichment architecture</span>
+            <span class="change-version">v0.8.0</span>
+          </div>
+          <h2>Place decisions now run on a faster enrichment system</h2>
+          <p>Wantt 0.8.0 changes how a saved post becomes a Place. Source capture, Place identification and useful details now run as separate parts of the enrichment process, helping Wantt reach a trusted Place decision much sooner while deeper information can continue to arrive.</p>
+          <ul>
+            <li>Introduced a faster, bounded path for deciding which real-world Place a saved post refers to</li>
+            <li>Separated source evidence, Place identification and richer details so each can progress independently</li>
+            <li>Started retaining the Instagram posting account and explicit coauthor information behind a save</li>
+            <li>Expanded internal diagnostics so individual saves are easier to trace and improve</li>
+            <li>Removed the transient offline banner while preserving contextual network-error handling</li>
+          </ul>
+          <p>This release changes the system behind Wantt more than the screens you see. It provides the faster foundation for improving Place coverage and the quality of Things to Try in the releases that follow.</p>
+          <p class="change-next"><strong>Next:</strong> recover more venue candidates from difficult posts and improve the fidelity of Things to Try without giving up the speed gained here.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">25 Sep 2026</div>
         <div class="change-body">
           <div class="change-meta">
