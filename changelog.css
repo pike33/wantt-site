@@ -31,6 +31,7 @@
 .month-nav a:hover,
 .month-nav a:focus-visible { color: var(--text); text-decoration-color: currentColor; }
 .month-nav a:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+.month-label-short { display: none; }
 .changelog-timeline { min-width: 0; }
 .change-month { scroll-margin-top: 24px; }
 .change-month + .change-month { margin-top: 64px; }
@@ -164,7 +165,17 @@
 @media (max-width: 720px) {
   .changelog { padding-top: 46px; }
   .changelog-intro { margin-bottom: 48px; }
-  .month-nav { margin-bottom: 44px; }
+  .month-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 44px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .month-nav p,
+  .month-nav a { flex: 0 0 auto; }
+  .month-label-full { display: none; }
+  .month-label-short { display: inline; }
   .change-month + .change-month { margin-top: 52px; }
   .change-entry { grid-template-columns: 1fr; gap: 16px; padding: 42px 0 50px; }
   .change-date { padding-top: 0; }
