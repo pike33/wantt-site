@@ -46,7 +46,18 @@
       <p class="lede">A simple record of what changed in Wantt, what we learned, and where it goes next.</p>
     </header>
 
-    <section class="changelog-list" aria-label="Wantt changelog entries">
+    <div class="changelog-layout">
+      <nav class="month-nav" aria-label="Changelog months">
+        <p>2026</p>
+        <a href="#october-2026">October</a>
+        <a href="#september-2026">September</a>
+        <a href="#august-2026">August</a>
+      </nav>
+
+      <div class="changelog-timeline">
+        <section class="change-month" id="october-2026" aria-label="October 2026">
+          <p class="month-heading">October 2026</p>
+          <div class="changelog-list">
       <article class="change-entry">
         <div class="change-date">3 Oct 2026</div>
         <div class="change-body">
@@ -54,20 +65,26 @@
             <span class="change-kicker">Enrichment architecture</span>
             <span class="change-version">v0.8.0</span>
           </div>
-          <h2>JEV now decides which Place a save refers to</h2>
-          <p>Wantt 0.8.0 changes how a saved post becomes a Place. Source capture, Place identification and useful details now run as separate parts of the enrichment process. JEV makes the bounded Place decision, helping Wantt reach a trusted result much sooner while deeper information can continue to arrive.</p>
+          <h2>Jev now decides which Place a save refers to</h2>
+          <p>Wantt 0.8.0 changes how a saved post becomes a Place. Source capture, Place identification and useful details now run as separate parts of the enrichment process. Jev makes the bounded Place decision, helping Wantt reach a trusted result much sooner while deeper information can continue to arrive.</p>
           <ul>
-            <li>JEV now decides which supported real-world Place a saved post refers to using a faster, bounded path</li>
+            <li>Jev now decides which supported real-world Place a saved post refers to using a faster, bounded path</li>
             <li>Separated source evidence, Place identification and richer details so each can progress independently</li>
             <li>Started retaining the Instagram posting account and explicit coauthor information behind a save</li>
             <li>Expanded internal diagnostics so individual saves are easier to trace and improve</li>
             <li>Removed the transient offline banner while preserving contextual network-error handling</li>
           </ul>
-          <p>In the Build 21 A/B evaluation, median (p50) Rich extraction took about 0.4 seconds with JEV, versus about 51 seconds on the xAI-first path. That measures the Rich extraction step, not the full journey from save to Place. Place coverage still needs improvement.</p>
+          <p>In the Build 21 A/B evaluation, median (p50) Rich extraction took about 0.4 seconds with Jev, versus about 51 seconds on the xAI-first path. That measures the Rich extraction step, not the full journey from save to Place. Place coverage still needs improvement.</p>
           <p class="change-next"><strong>Next:</strong> recover more venue candidates from difficult posts and improve the fidelity of Things to Try without giving up the speed gained here.</p>
         </div>
       </article>
 
+          </div>
+        </section>
+
+        <section class="change-month" id="september-2026" aria-label="September 2026">
+          <p class="month-heading">September 2026</p>
+          <div class="changelog-list">
       <article class="change-entry">
         <div class="change-date">25 Sep 2026</div>
         <div class="change-body">
@@ -273,6 +290,12 @@
         </div>
       </article>
 
+          </div>
+        </section>
+
+        <section class="change-month" id="august-2026" aria-label="August 2026">
+          <p class="month-heading">August 2026</p>
+          <div class="changelog-list">
       <article class="change-entry">
         <div class="change-date">31 Aug 2026</div>
         <div class="change-body">
@@ -375,7 +398,10 @@
           <p class="change-next"><strong>Next:</strong> use it heavily, find the friction, and improve the save-to-use loop before App Store submission.</p>
         </div>
       </article>
-    </section>
+          </div>
+        </section>
+      </div>
+    </div>
   </main>
 
   {% include footer.html %}

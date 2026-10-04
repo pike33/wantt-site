@@ -1,6 +1,46 @@
-.changelog { max-width: 980px; padding: 70px 0 120px; }
+.changelog { padding: 70px 0 120px; }
 .changelog-intro { max-width: 760px; margin-bottom: 90px; }
 .changelog-intro h1 { margin-bottom: 26px; }
+.changelog-layout {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 64px);
+  align-items: start;
+}
+.month-nav {
+  position: sticky;
+  top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+}
+.month-nav p {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .13em;
+}
+.month-nav a {
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+}
+.month-nav a:hover,
+.month-nav a:focus-visible { color: var(--text); text-decoration-color: currentColor; }
+.month-nav a:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+.changelog-timeline { min-width: 0; }
+.change-month { scroll-margin-top: 24px; }
+.change-month + .change-month { margin-top: 64px; }
+.month-heading {
+  margin: 0 0 22px;
+  color: var(--text);
+  font-size: clamp(23px, 2.5vw, 30px);
+  font-weight: 500;
+  letter-spacing: -.035em;
+}
 .changelog-list { border-top: 1px solid var(--line); }
 .change-entry {
   display: grid;
@@ -106,9 +146,26 @@
 }
 .change-next strong { color: var(--text); font-weight: 580; }
 .site-footer a[aria-current="page"] { color: var(--text); }
+@media (max-width: 880px) {
+  .changelog-layout { display: block; }
+  .month-nav {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-bottom: 54px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .month-nav p { margin: 0; }
+  .month-nav a { padding: 4px 0; }
+}
 @media (max-width: 720px) {
   .changelog { padding-top: 46px; }
-  .changelog-intro { margin-bottom: 64px; }
+  .changelog-intro { margin-bottom: 48px; }
+  .month-nav { margin-bottom: 44px; }
+  .change-month + .change-month { margin-top: 52px; }
   .change-entry { grid-template-columns: 1fr; gap: 16px; padding: 42px 0 50px; }
   .change-date { padding-top: 0; }
   .release-screens { gap: 14px; margin: 30px 0 32px; }
