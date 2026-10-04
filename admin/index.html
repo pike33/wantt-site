@@ -47,10 +47,11 @@
         </div>
       </header>
 
-      <nav class="tabs" aria-label="Admin sections">
+      <nav class="tabs" role="tablist" aria-label="Admin sections">
         <button class="tab is-active" data-tab="enrichment" type="button">Enrichment</button>
         <button class="tab" data-tab="places" type="button">Places</button>
         <button class="tab" data-tab="accounts" type="button">Instagram Accounts</button>
+        <button class="tab" data-tab="analytics" type="button">Analytics</button>
       </nav>
 
       <section id="view-enrichment" class="view">
@@ -58,48 +59,52 @@
           <div>
             <p class="eyebrow">operations</p>
             <h2>Enrichment Monitor</h2>
-            <p class="muted">Recent enrichment activity. Updates automatically while this page is open.</p>
+            <p class="muted">Search request history by Place, creator, capture ID or retained Save ID.</p>
           </div>
-          <div class="live-indicator"><span></span> live · 5s</div>
+          <div id="history-live" class="live-indicator"><span></span> live · 5s</div>
         </div>
 
         <div id="summary" class="summary-grid" aria-label="Enrichment summary">
           <article class="metric-card"><span>Active</span><strong id="metric-active">—</strong></article>
-          <article class="metric-card"><span>Needs help</span><strong id="metric-needs-help">—</strong></article>
+          <article class="metric-card"><span>Needs confirmation</span><strong id="metric-needs-help">—</strong></article>
           <article class="metric-card"><span>Failed</span><strong id="metric-failed">—</strong></article>
-          <article class="metric-card"><span>Completed today</span><strong id="metric-completed">—</strong></article>
+          <article class="metric-card"><span>Enriched, updated today</span><strong id="metric-completed">—</strong></article>
         </div>
 
-        <div class="toolbar">
-          <div id="filters" class="filters" aria-label="Enrichment filters">
-            <button class="filter is-active" data-filter="all" type="button">All</button>
-            <button class="filter" data-filter="active" type="button">Active</button>
-            <button class="filter" data-filter="needs_confirmation" type="button">Needs help</button>
-            <button class="filter" data-filter="failed" type="button">Failed</button>
-            <button class="filter" data-filter="slow" type="button">Slow</button>
-            <button class="filter" data-filter="reuse" type="button">Reused</button>
-          </div>
-          <span id="last-updated" class="muted compact"></span>
-        </div>
-
+        <p id="summary-meta" class="muted reporting-note" aria-live="polite">Global request counts; independent of history filters.</p>
+        <p id="summary-error" class="error" role="alert" hidden></p>
+        <details class="methodology"><summary>What the cards count</summary><p id="summary-definitions"></p></details>
+        <form id="history-form" class="reporting-filters">
+          <label>From (Sydney)<input id="history-from" type="date" required></label>
+          <label>Through (Sydney)<input id="history-through" type="date" required></label>
+          <label>State<select id="history-status"><option value="">All states</option><option value="pending">Pending</option><option value="processing">Processing</option><option value="needs_confirmation">Needs confirmation</option><option value="failed">Failed</option><option value="enriched">Enriched</option></select></label>
+          <label>Source<select id="history-platform"><option value="">All sources</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option><option value="google_maps">Google Maps</option><option value="web">Website</option><option value="unknown">Unknown</option></select></label>
+          <label class="search-field">Search<input id="history-search" type="search" maxlength="128" placeholder="Place, creator or ID"></label>
+          <label>Page size<select id="history-limit"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select></label>
+          <button class="secondary-button" type="submit">Apply</button>
+        </form>
+        <p class="muted reporting-note">Source filters describe recorded platforms; they do not imply support for new acquisition providers. Maximum range: 366 days.</p>
+        <p id="history-error" class="error" role="alert" hidden></p>
+        <p id="history-notice" class="muted reporting-note" aria-live="polite"></p>
+        <div class="toolbar"><span id="history-count" class="muted" role="status"></span><span id="last-updated" class="muted compact"></span></div>
         <div id="enrichment-empty" class="empty-state" hidden>No enrichment requests match this filter.</div>
         <div class="table-wrap">
           <table id="enrichment-table">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Source</th>
+                <th>Created / updated</th>
+                <th>Source / creator</th>
                 <th>State</th>
-                <th>Elapsed</th>
-                <th>Place / candidate</th>
-                <th>Decision</th>
-                <th>Path</th>
-                <th>Saver</th>
+                <th>Current Place</th>
+                <th>Extraction candidate</th>
+                <th>Retained decision</th>
+                <th>Attempts</th>
               </tr>
             </thead>
             <tbody id="enrichment-body"></tbody>
           </table>
         </div>
+        <div class="pagination"><button id="history-more" class="secondary-button" type="button" hidden>Load older requests</button></div>
       </section>
 
       <section id="view-places" class="view" hidden>
@@ -149,6 +154,17 @@
           </table>
         </div>
       </section>
+      <section id="view-analytics" class="view" hidden>
+        <div class="view-heading"><div><p class="eyebrow">operational reporting</p><h2>Analytics</h2><p class="muted">Sydney-day Save actions and request outcomes, with separate denominators.</p></div></div>
+        <form id="analytics-form" class="reporting-filters">
+          <label>From (Sydney)<input id="analytics-from" type="date" required></label>
+          <label>Through (Sydney)<input id="analytics-through" type="date" required></label>
+          <button class="secondary-button" type="submit">Apply</button>
+        </form>
+        <p id="analytics-error" class="error" role="alert" hidden></p>
+        <p id="analytics-status" class="muted reporting-note" role="status"></p>
+        <div id="analytics-content" hidden></div>
+      </section>
     </section>
   </main>
 
@@ -175,3 +191,4 @@
   <script src="/admin/admin.js" defer></script>
 </body>
 </html>
+
