@@ -425,3 +425,31 @@ pre {
     gap: 3px;
   }
 }
+
+
+/* Operational reporting */
+.reporting-note { font-size: 12px; line-height: 1.6; }
+.reporting-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 24px 0 10px; }
+.reporting-filters label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.reporting-filters input, .reporting-filters select { min-height: 38px; max-width: 100%; border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px 10px; background: var(--panel-solid); color: var(--text); font: inherit; }
+.search-field { flex: 1; min-width: 200px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.request-link { padding: 0; border: 0; background: none; color: var(--accent); text-align: left; cursor: pointer; font: inherit; }
+.pagination { display: flex; justify-content: center; padding: 20px; }
+.methodology { margin: 12px 0 20px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+.methodology summary { cursor: pointer; }
+.analytics-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.analytics-metrics p { font-size: 12px; line-height: 1.5; }
+.analytics-panel { border: 1px solid var(--line); border-radius: 18px; background: var(--panel); padding: 22px; margin: 18px 0; }
+.analytics-panel p { font-size: 12px; }
+.daily-chart { display: block; height: 210px; width: 100%; margin-top: 24px; fill: var(--accent); }
+.chart-range { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+.value-table { min-width: 0; }
+.value-table caption { text-align: left; padding: 12px 14px; }
+.outcome-chart { display: grid; gap: 16px; margin: 22px 0; }
+.outcome-row { display: grid; grid-template-columns: 150px 1fr 60px; gap: 12px; align-items: center; font-size: 13px; }
+.outcome-row strong { text-align: right; }
+.outcome-track { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.outcome-track > span { display: block; height: 100%; background: var(--accent); }
+.current-place-detail { margin: 12px 0; }
+@media (max-width: 600px) { .analytics-metrics { grid-template-columns: 1fr; } .outcome-row { grid-template-columns: 115px 1fr 40px; } .reporting-filters label { flex: 1 1 140px; } }
