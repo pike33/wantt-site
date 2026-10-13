@@ -59,6 +59,27 @@
           <p class="month-heading">October 2026</p>
           <div class="changelog-list">
       <article class="change-entry">
+        <div class="change-date">12 Oct 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Enrichment pipeline groundwork</span>
+            <span class="change-version">v0.9.0</span>
+          </div>
+          <h2>New rules for identifying Places and Things to try</h2>
+          <p>Build 23 builds and tests a new processing path for posts that mention several Places. The goal is to identify each destination separately and keep dishes, drinks and prices with the Place they belong to. This release is mostly groundwork behind the scenes, with no major visual changes.</p>
+          <ul>
+            <li>Built support for several independently resolved Places within one saved post, so one unresolved destination does not hold up the others</li>
+            <li>Added rules to keep Things to try and their individual prices with the destination supported by the source, leaving uncertain associations unassigned</li>
+            <li>Added checks to distinguish an intended venue from its surroundings, such as a restaurant inside a hotel</li>
+            <li>Strengthened how later source evidence and personal confirmations are retained without replacing other valid results or another user's choices</li>
+            <li>Tested the new path and compared extraction approaches, retaining Jev with the existing xAI fallback for this release</li>
+          </ul>
+          <p>The new automatic processing path is not yet enabled in production. Live saves still use the existing path, and recent device tests showed missed venues, missing prices and fragmented or duplicate recommendations. Build 23 establishes the foundation; it does not yet demonstrate a general improvement in extraction quality.</p>
+          <p class="change-next"><strong>Next:</strong> Use Build 24 to address these gaps and evaluate Luna through the full pipeline before deciding whether to change the extractor.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">6 Oct 2026</div>
         <div class="change-body">
           <div class="change-meta">
