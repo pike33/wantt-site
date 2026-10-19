@@ -40,3 +40,18 @@ Before accepting the combined Admin delivery:
 
 No behavioral tracking or chart dependency has been added. This is an operational
 reporting seed for the later product analytics work, not user-behavior analytics.
+
+## Build 25 H companion: completion labels
+
+The owned GLM/Jev detail uses the backend's `completion` projection for Rich,
+finishing reason, source-image state and discovery confidence. An unknown discovery
+dimension does not imply failed processing. Recorded coordinator reasons and
+withheld-claim fields remain inspectable; copied JSON is returned unchanged from
+the server. Legacy responses without `completion` keep their existing trace display.
+
+The same test command now covers owned completion, partial claims, pending images,
+generation mismatch, HTML escaping and unchanged copy payloads. Backend companion:
+`saved-for-later` Build 25 H, on top of merged PR240. Publish its protected API
+projection before/alongside this compatible page. No authentication, tracking,
+source acquisition, provider call or native-app change is added. Signed-in
+successful/partial detail inspection after publication remains an acceptance gate.

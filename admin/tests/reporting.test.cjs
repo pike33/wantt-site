@@ -168,3 +168,33 @@ test('original links reject executable protocols; case-file copy preserves machi
   assert.doesNotMatch(content, /href="javascript:/); assert.match(content, /Rich extraction failed/);
   await h.click('drawer-copy'); await flush(); assert.deepEqual(JSON.parse(h.clipboard[0]), exported);
 });
+
+
+test('owned completion replaces legacy-only Rich label and keeps unknown discovery and recorded reasons separate', async () => {
+  const completion = { availability: 'recorded', rich: 'completed', image: 'persisted', discovery: 'unknown', terminalReason: 'completed', retryCycle: 2 };
+  const exported = { summary: { richCompletion: 'completed', completion }, ownedPipeline: { stopReasons: ['completed'], recordedStopReasons: ['partial_discovery_unverified'] } };
+  const h = harness(u => u.pathname.endsWith('/case-file') ? { body: exported } : /\/enrichment\/capture-one$/.test(u.pathname) ? { body: detail({ completion, ownedPipeline: { stopReasons: ['partial_discovery_unverified'], claimDiagnostics: [] }, diagnostics: { trace: { availability: 'not_recorded', events: [] } } }) } : undefined);
+  await flush(); await h.elements.get('enrichment-body').buttons[0].emit('click'); await flush();
+  const content = h.elements.get('drawer-content').innerHTML;
+  assert.match(content, /Rich<\/span><strong>Complete/);
+  assert.match(content, /Finishing reason<\/span><strong>Completed/);
+  assert.match(content, /Source image<\/span><strong>Stored/);
+  assert.match(content, /Discovery confidence<\/span><strong>Unknown/);
+  assert.match(content, /Recorded coordinator reasons/); assert.match(content, /partial_discovery_unverified/);
+  assert.match(content, /not recorded/i);
+  await h.click('drawer-copy'); await flush(); assert.deepEqual(JSON.parse(h.clipboard[0]), exported);
+});
+
+test('owned partial, image pending and mismatched-generation states are never displayed as Complete', async () => {
+  for (const c of [
+    { rich: 'partial', image: 'persisted', terminalReason: 'partial_held_claims' },
+    { rich: 'completed', image: 'pending', terminalReason: 'image_pending' },
+    { rich: 'not_recorded', image: 'not_recorded', terminalReason: 'generation_mismatch' },
+  ]) {
+    const h = harness(u => /\/enrichment\/capture-one$/.test(u.pathname) ? { body: detail({ completion: { ...c, discovery: 'unknown' }, ownedPipeline: { claimDiagnostics: [{ path: '<img onerror=alert(1)>', reason: 'grounding' }] } }) } : undefined);
+    await flush(); await h.elements.get('enrichment-body').buttons[0].emit('click'); await flush();
+    const content = h.elements.get('drawer-content').innerHTML;
+    assert.doesNotMatch(content, /Finishing reason<\/span><strong>Completed/);
+    assert.doesNotMatch(content, /<img/); assert.match(content, /&lt;img/);
+  }
+});

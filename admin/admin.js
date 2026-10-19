@@ -715,7 +715,12 @@
     const trace = getTraceState(d);
     const authority = d.currentPlace?.authority || authoritySummary(trace, manual);
     const primaryMs = trustedPrimaryDuration(r, trace);
-    const rich = richCompletionSummary(trace);
+    const completion = d.completion && typeof d.completion === 'object' ? d.completion : null;
+    const completionLabels = { completed: 'Complete', partial: 'Partial', failed: 'Failed', not_recorded: 'Not recorded' };
+    const rich = completion ? (completionLabels[completion.rich] || 'Not recorded') : richCompletionSummary(trace);
+    const imageLabels = { persisted: 'Stored', unavailable: 'Unavailable', failed: 'Failed', pending: 'Pending', stale: 'Stale or concurrent', not_recorded: 'Not recorded' };
+    const terminalLabels = { completed: 'Completed', partial_held_claims: 'Some claims withheld', partial_destinations: 'Some places unresolved', source_acquisition_failed: 'Source acquisition failed', provider_attempt_held: 'Provider attempt held', provider_attempt_pending: 'Provider attempt pending', provider_response_failed: 'Provider response failed', processing_failed: 'Processing failed', processing_pending: 'Processing pending', processing_not_recorded: 'Processing state not recorded', rich_not_recorded: 'Rich output not recorded', generation_mismatch: 'Current generation not recorded', image_pending: 'Image pending', image_failed: 'Image failed', image_unavailable: 'Image unavailable', manual_continuation_pending: 'Extra details pending', manual_continuation_running: 'Extra details running', manual_continuation_blocked: 'Extra details blocked', manual_continuation_partial: 'Some extra details unavailable', manual_continuation_unavailable: 'Extra details unavailable', manual_continuation_cancelled: 'Extra details cancelled' };
+
     const displayEvidence = compactEvidenceForDisplay(d.evidence, trace);
 
     drawerContent.innerHTML = `
@@ -730,6 +735,16 @@
         Elapsed ${escapeHtml(formatDuration(r.elapsedMs))} ·
         Saver ${escapeHtml(d.saverPseudoId || 'anonymous')}
       </p>
+
+      ${completion ? `<section class="detail-section"><h3>Processing result</h3>
+        <div class="detail-grid">
+          <div class="detail-stat"><span>Finishing reason</span><strong>${escapeHtml(terminalLabels[completion.terminalReason] || 'Not recorded')}</strong></div>
+          <div class="detail-stat"><span>Source image</span><strong>${escapeHtml(imageLabels[completion.image] || 'Not recorded')}</strong></div>
+          <div class="detail-stat"><span>Discovery confidence</span><strong>${completion.discovery === 'verified' ? 'Verified complete' : 'Unknown'}</strong></div>
+        </div>
+        <p class="muted">Processing, rich output, image state and discovery confidence are separate. Unknown discovery does not mean processing failed or prove that every possible item was found.</p>
+        ${d.ownedPipeline ? `<details><summary>Recorded coordinator reasons and withheld claims</summary><pre>${escapeHtml(pretty({ recordedStopReasons: d.ownedPipeline.stopReasons || [], claimDiagnostics: d.ownedPipeline.claimDiagnostics || [], acquisition: d.ownedPipeline.acquisition || [] }))}</pre></details>` : ''}
+      </section>` : ''}
 
       ${r.errorMessage ? `<section class="detail-section"><h3>Request error</h3><pre>${escapeHtml(displayValue(r.errorMessage))}</pre></section>` : ''}
       <section class="detail-section"><h3>Current Place and retained extraction</h3>
