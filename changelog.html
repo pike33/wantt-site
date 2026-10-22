@@ -59,6 +59,38 @@
           <p class="month-heading">October 2026</p>
           <div class="changelog-list">
       <article class="change-entry">
+        <div class="change-date">22 Oct 2026</div>
+        <div class="change-body">
+          <div class="change-meta">
+            <span class="change-kicker">Multiple Places, dishes and prices</span>
+            <span class="change-version">v0.9.1 · Builds 24–25</span>
+          </div>
+          <h2>One saved post can now lead to several Places</h2>
+          <p>Builds 24 and 25 bring the new processing path into use and repair the delivery problems found along the way. A post that recommends several destinations can now return several Places inside one save. Open each Place or add it to a Plan, with its supported dishes and prices kept together.</p>
+          <div class="release-screens" aria-label="Builds 24 and 25 in Wantt">
+            <figure class="phone-shot">
+              <div class="phone-frame"><img src="assets/build-25-multiple-places.webp" alt="Wantt saved item showing Gigi's Pizza Balmain, Cairo Takeaway and Frank's Deli with separate Details and Add to Plan controls" loading="lazy" decoding="async"></div>
+              <figcaption>Open each Place or add it to a Plan from the same saved post.</figcaption>
+            </figure>
+            <figure class="phone-shot">
+              <div class="phone-frame"><img src="assets/build-25-dishes-prices.webp" alt="Wantt Place detail for Sunny's Takeaway showing Things to try with individual prices from the saved post" loading="lazy" decoding="async"></div>
+              <figcaption>Keep dishes and source prices together under the right Place.</figcaption>
+            </figure>
+          </div>
+          <ul>
+            <li>Enabled the new extraction and Place-decision flow, with corrections for posts that recommend several venues and for choosing the intended branch</li>
+            <li>Improved how named dishes and their original prices are retained and grouped under the Place they belong to</li>
+            <li>Restored source thumbnails and repaired result delivery so completed saves do not remain stuck on Finding a Place</li>
+            <li>Improved continued processing after manual Place confirmation, while keeping your choices private to your save</li>
+            <li>Separated supported Place resolution and thumbnail work from transcript failures, and isolated some provider failures so they do not stop unrelated saves</li>
+            <li>Updated private admin diagnostics to show the current Places, dishes, prices and thumbnail, with clearer explanations of partial results</li>
+          </ul>
+          <p>This is not a guarantee that every venue or dish will be found. Some extraction and formatting gaps remain, and dish extraction when a transcript is unavailable still needs work. Recovery for older failed saves, Try again and delete/re-save behaviour remain separate follow-ups.</p>
+          <p class="change-next"><strong>Next:</strong> Make the first save easier for new testers, from installing Wantt and setting up the Share Sheet to returning to a Place.</p>
+        </div>
+      </article>
+
+      <article class="change-entry">
         <div class="change-date">12 Oct 2026</div>
         <div class="change-body">
           <div class="change-meta">
