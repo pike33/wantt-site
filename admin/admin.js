@@ -34,6 +34,7 @@
   let enrichmentRows = [];
   let pollTimer = null;
   let detailCaptureId = null;
+  let detailOpener = null;
   let detailPayload = null;
   let detailRequestToken = 0;
   let copyResetTimer = null;
@@ -116,7 +117,7 @@
   const creatorLabel = (source = {}) => source.ambiguous ? 'Multiple posting accounts — ambiguous'
     : source.postingAccount?.username ? `@${String(source.postingAccount.username).replace(/^@/, '')}`
     : source.postingAccount?.displayName || 'Creator unknown';
-  const retainedExtractor = (detail) => ['Jev', 'xAI'].includes(detail?.diagnostics?.extraction?.extractor)
+  const retainedExtractor = (detail) => ['GLM', 'Jev', 'xAI'].includes(detail?.diagnostics?.extraction?.extractor)
     ? detail.diagnostics.extraction.extractor : 'Unknown';
   const calendarDay = (date = new Date()) => {
     const parts = new Intl.DateTimeFormat('en-CA', { timeZone: TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
@@ -511,16 +512,40 @@
     const scope = { current_active_save: 'Current active Save', current_inactive_save: 'Current inactive Save', request_trusted_primary: 'Request trusted primary' }[place.scope] || 'Scope unknown';
     return `<span class="source-main">${escapeHtml(place.name)}</span><span class="source-sub">${escapeHtml(place.authority === 'manual' ? 'Manual' : 'Automatic')} · ${escapeHtml(scope)}</span>${place.authority === 'manual' ? '<span class="source-sub">Not a proven historical request outcome</span>' : ''}`;
   };
+  const imageStateLabel = state => ({ persisted: 'Stored', absent: 'Not stored', pending: 'Pending',
+    unavailable: 'Unavailable', failed: 'Failed', stale: 'Stale or concurrent', not_recorded: 'Not recorded' }[state] || 'Unknown');
+  const resultPlacesMarkup = result => result.places.length ? result.places.map(place => `
+    <div class="result-place-name"><strong>${escapeHtml(place.name)}</strong><span class="source-sub">${escapeHtml(place.authority === 'manual' ? 'Manually selected' : 'Automatically resolved')}${place.scope === 'current_inactive_save' ? ' · inactive Save' : ''}</span></div>`).join('')
+    : `<span class="source-main">${result.saveState === 'inactive' ? 'Save inactive' : 'No resolved Place recorded'}</span>`;
+  const priceMarkup = price => {
+    const amount = price.text || (price.amountMin !== null && price.amountMin !== undefined
+      ? `${price.currency ? price.currency + ' ' : ''}${price.amountMin}${price.amountMax !== null && price.amountMax !== price.amountMin ? '–' + price.amountMax : ''}` : '');
+    return `${escapeHtml(amount)}${price.unit && !String(amount).includes(price.unit) ? ' · ' + escapeHtml(price.unit) : ''}`;
+  };
+  const thingsMarkup = things => things.length ? `<ul class="result-things">${things.map(thing => `<li><span>${escapeHtml(thing.title)}</span>${thing.prices?.length ? `<span class="thing-prices">${thing.prices.map(priceMarkup).join(' · ')}</span>` : ''}</li>`).join('')}</ul>`
+    : '<p class="muted">No Things recorded for this venue.</p>';
+  const currentResultMarkup = result => {
+    if (!result || result.version !== 1) return '<section class="result-overview"><h3>Current result</h3><p class="muted">This API has not supplied the current-result projection. Legacy records remain available below.</p></section>';
+    const ungrouped = result.things.filter(t => !result.places.some(p => (p.sourceVenueIds || [p.sourceVenueId]).includes(t.sourceVenueId) && t.sourceVenueId));
+    return `<section class="result-overview" aria-label="Current saved result"><div class="result-heading"><div><p class="eyebrow">current saved result</p><h3>${result.places.length ? `${result.places.length} resolved ${result.places.length === 1 ? 'place' : 'places'}` : 'No resolved Place recorded'}</h3></div><span class="result-image">Thumbnail: ${escapeHtml(imageStateLabel(result.image?.state))}</span></div>
+      <p class="muted">Current Save: ${escapeHtml(result.saveState)} · ${result.thingCount === null ? 'Things not recorded' : `${escapeHtml(result.thingCount)} Things recorded`}</p>
+      <div class="result-messages">${result.messages.map(message => `<p>${escapeHtml(message)}</p>`).join('')}</div>
+      ${result.places.map(place => `<article class="result-venue"><h4>${escapeHtml(place.name)}</h4><p class="muted">${escapeHtml(place.authority === 'manual' ? 'Manually selected' : 'Automatically resolved')}${place.scope === 'current_inactive_save' ? ' · inactive Save' : ''}</p>${place.formattedAddress ? `<p class="venue-address">${escapeHtml(place.formattedAddress)}</p>` : ''}${thingsMarkup(result.things.filter(t => (place.sourceVenueIds || [place.sourceVenueId]).includes(t.sourceVenueId) && t.sourceVenueId))}</article>`).join('')}
+      ${result.unresolvedDestinations.length ? `<section class="result-unresolved"><h4>Unresolved destinations</h4><ul>${result.unresolvedDestinations.map(v => `<li>${escapeHtml(v.name || 'Unnamed destination')} · ${escapeHtml(v.authority === 'none' ? 'Place not resolved' : v.authority)}</li>`).join('')}</ul></section>` : ''}
+      ${ungrouped.length ? `<section class="result-unresolved"><h4>Things without a resolved Place</h4>${thingsMarkup(ungrouped)}</section>` : ''}
+      <p class="muted">Current saved facts and this processing attempt are separate. ${result.image?.scope === 'current_save' ? 'Thumbnail status reflects the active Save; an older successful image may still be available.' : 'Thumbnail status is from recorded attempt diagnostics.'}</p></section>`;
+  };
+
   const renderEnrichmentRows = () => {
     $('enrichment-empty').hidden = enrichmentRows.length !== 0;
     $('enrichment-body').innerHTML = enrichmentRows.map(row => `<tr>
       <td><button class="request-link" type="button" data-capture-id="${escapeHtml(row.captureId)}" aria-label="Inspect request ${escapeHtml(row.captureId)}">${escapeHtml(formatDateTime(row.createdAt))}</button><span class="source-sub">Updated ${escapeHtml(formatDateTime(row.updatedAt))}</span><span class="source-sub">${escapeHtml(row.captureId.slice(0, 12))}</span></td>
       <td><span class="source-main">${escapeHtml(platformLabel(row.source?.platform))}</span><span class="source-sub">${escapeHtml(creatorLabel(row.source))}</span></td>
       <td><span class="badge badge-${escapeHtml(row.status)}">${escapeHtml(statusLabel(row.status))}</span><span class="source-sub">Save ${escapeHtml(row.saveLink?.state || 'unknown')}</span></td>
-      <td>${currentPlaceMarkup(row.currentPlace)}</td>
-      <td>${escapeHtml(row.extractionCandidate || '—')}</td>
-      <td>${escapeHtml(decisionLabel(row.retainedDecision?.reason))}<span class="source-sub">${escapeHtml(formatDateTime(row.retainedDecision?.occurredAt))}</span><span class="source-sub">Cycle association not proven</span></td>
-      <td>${escapeHtml(row.attemptCount ?? '—')} total<span class="source-sub">${escapeHtml(row.failedAttemptCount ?? '—')} failed · cycle ${escapeHtml(row.retryCycle ?? '—')}</span></td>
+      <td>${row.currentResult ? resultPlacesMarkup(row.currentResult) : currentPlaceMarkup(row.currentPlace)}</td>
+      <td>${row.currentResult ? `${row.currentResult.thingCount === null ? 'Not recorded' : escapeHtml(row.currentResult.thingCount) + ' Things'}<span class="source-sub">Thumbnail: ${escapeHtml(imageStateLabel(row.currentResult.image?.state))}</span>` : 'Not recorded'}</td>
+      <td>${row.currentResult ? escapeHtml(({ completed: 'Details complete', partial: 'Partial details', failed: 'Details unavailable' })[row.currentResult.completion?.rich] || 'Details not recorded') + `<span class="source-sub">${escapeHtml(row.currentResult.messages[0] || '')}</span>` : 'Not recorded'}</td>
+      <td>${escapeHtml(row.attemptCount ?? '—')} legacy attempts<span class="source-sub">${escapeHtml(row.failedAttemptCount ?? '—')} failed · cycle ${escapeHtml(row.retryCycle ?? '—')}</span><details><summary>Retained legacy records</summary><p>Extraction candidate: ${escapeHtml(row.extractionCandidate || 'Not recorded')}</p><p>Decision: ${escapeHtml(decisionLabel(row.retainedDecision?.reason))}</p><p class="muted">Cycle association not proven.</p></details></td>
     </tr>`).join('');
     $('enrichment-body').querySelectorAll('[data-capture-id]').forEach(button => button.addEventListener('click', () => openDetail(button.dataset.captureId)));
     $('history-count').textContent = `${enrichmentRows.length} loaded requests${nextCursor ? ' · older requests available' : ' · end of this range'}`;
@@ -685,6 +710,8 @@
 
   const openDetail = async (captureId) => {
     const requestToken = ++detailRequestToken;
+    detailOpener = document.activeElement;
+    app.inert = true;
     detailCaptureId = captureId;
     detailPayload = null;
     resetCopyButton();
@@ -694,6 +721,7 @@
     drawerBackdrop.hidden = false;
     drawer.classList.add('is-open');
     drawer.setAttribute('aria-hidden', 'false');
+    $('drawer-close').focus();
 
     const result = await api(`/admin/api/enrichment/${encodeURIComponent(captureId)}`).catch(() => ({ response: { ok: false }, body: {} }));
     if (requestToken !== detailRequestToken || detailCaptureId !== captureId) return;
@@ -713,7 +741,8 @@
     const manual = d.manualConfirmation || null;
     const representativeImageDiagnostic = d.representativeImageDiagnostic || null;
     const trace = getTraceState(d);
-    const authority = d.currentPlace?.authority || authoritySummary(trace, manual);
+    const authorities = new Set((d.currentResult?.places || []).map(p => p.authority));
+    const authority = authorities.size > 1 ? 'Mixed automatic / manual' : [...authorities][0] || d.currentPlace?.authority || authoritySummary(trace, manual);
     const primaryMs = trustedPrimaryDuration(r, trace);
     const completion = d.completion && typeof d.completion === 'object' ? d.completion : null;
     const completionLabels = { completed: 'Complete', partial: 'Partial', failed: 'Failed', not_recorded: 'Not recorded' };
@@ -724,12 +753,14 @@
     const displayEvidence = compactEvidenceForDisplay(d.evidence, trace);
 
     drawerContent.innerHTML = `
+      ${currentResultMarkup(d.currentResult)}
       <div class="detail-grid">
         <div class="detail-stat"><span>State</span><strong>${escapeHtml(statusLabel(r.status))}</strong></div>
         <div class="detail-stat"><span>Authority</span><strong>${escapeHtml(authority)}</strong></div>
         <div class="detail-stat"><span>Primary</span><strong>${escapeHtml(formatDuration(primaryMs))}</strong></div>
         <div class="detail-stat"><span>Rich</span><strong>${escapeHtml(rich)}</strong></div>
       </div>
+      <details class="technical-details"><summary>Processing history and technical diagnostics</summary>
       <p class="detail-meta">
         Execution history ${escapeHtml(d.path || 'Unknown')} (heuristic) ·
         Elapsed ${escapeHtml(formatDuration(r.elapsedMs))} ·
@@ -747,7 +778,7 @@
       </section>` : ''}
 
       ${r.errorMessage ? `<section class="detail-section"><h3>Request error</h3><pre>${escapeHtml(displayValue(r.errorMessage))}</pre></section>` : ''}
-      <section class="detail-section"><h3>Current Place and retained extraction</h3>
+      <section class="detail-section"><h3>Legacy Place fields and retained extraction</h3>
         <div class="current-place-detail">${currentPlaceMarkup(d.currentPlace)}</div>
         <p class="muted">Extraction candidate: ${escapeHtml(d.extractionCandidate || '—')}</p>
         <div class="detail-grid">
@@ -813,6 +844,7 @@
         <h3>Durable evidence</h3>
         <pre>${escapeHtml(pretty(displayEvidence))}</pre>
       </section>
+      </details>
     `;
   };
 
@@ -824,6 +856,9 @@
     resetCopyButton();
     drawer.classList.remove('is-open');
     drawer.setAttribute('aria-hidden', 'true');
+    app.inert = false;
+    detailOpener?.focus();
+    detailOpener = null;
     drawerBackdrop.hidden = true;
   };
 

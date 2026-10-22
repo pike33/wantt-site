@@ -55,3 +55,18 @@ generation mismatch, HTML escaping and unchanged copy payloads. Backend companio
 projection before/alongside this compatible page. No authentication, tracking,
 source acquisition, provider call or native-app change is added. Signed-in
 successful/partial detail inspection after publication remains an acceptance gate.
+
+## Build 25 H current saved result
+
+The list and drawer consume the backend's additive `currentResult` projection.
+Owned Places (including private manual choices) and Things/price units lead the
+detail view; legacy candidates/attempts remain disclosed technical evidence.
+A thumbnail on the current Save is distinct from the latest attempt's image event.
+The copied diagnostic JSON remains the server's exact machine projection.
+
+Run `node --test admin/tests/reporting.test.cjs`: covers multi-venue grouping,
+addresses, mixed authority, price units, unavailable-transcript explanation,
+escaping, original-link validation, copy fidelity, session expiry, cursor/range
+behaviour and old-API compatibility. The authored browser preview is not signed-in
+production acceptance. Deploy backend first, then the site; compare table, drawer
+and copied report on automatic, manual, multi-venue, partial and failed cases.
