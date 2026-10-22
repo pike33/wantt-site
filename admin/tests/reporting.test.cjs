@@ -203,7 +203,7 @@ function deliveredResult(overrides = {}) {
   return { version: 1, saveState: 'active', thingCount: 2, thingsAvailability: 'recorded',
     places: [{ sourceVenueId: 'a', name: 'Cedar North', formattedAddress: '1 North St', authority: 'automatic' },
       { sourceVenueId: 'b', name: 'Maple South', formattedAddress: '2 South St', authority: 'manual' }],
-    things: [{ title: 'Soup', sourceVenueId: 'a', prices: [{ text: '$16', unit: 'per litre' }] },
+    things: [{ title: 'Soup', sourceVenueId: 'a', prices: [{ text: '$16', unit: 'per litre', label: 'Lunch special', qualifiers: ['weekdays'] }] },
       { title: 'Bread', sourceVenueId: 'b', prices: [] }], unresolvedDestinations: [],
     image: { state: 'persisted', scope: 'current_save', currentAttempt: 'not_recorded' },
     completion: { rich: 'completed', discovery: 'unknown' },
@@ -219,7 +219,7 @@ test('current multi-venue list and detail show actual Places, branch addresses, 
   await h.elements.get('enrichment-body').buttons[0].emit('click'); await flush();
   const content = h.elements.get('drawer-content').innerHTML;
   assert.match(content, /1 North St/); assert.match(content, /2 South St/); assert.match(content, /Mixed automatic \/ manual/);
-  assert.match(content, /Soup/); assert.match(content, /\$16 · per litre/); assert.match(content, /Bread/);
+  assert.match(content, /Soup/); assert.match(content, /\$16 · per litre · Lunch special · weekdays/); assert.match(content, /Bread/);
   assert.ok(content.indexOf('Current saved result') < content.indexOf('Processing history and technical diagnostics'));
   await h.click('drawer-copy'); await flush(); assert.deepEqual(JSON.parse(h.clipboard[0]),copied);
 });

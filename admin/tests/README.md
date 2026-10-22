@@ -70,3 +70,8 @@ escaping, original-link validation, copy fidelity, session expiry, cursor/range
 behaviour and old-API compatibility. The authored browser preview is not signed-in
 production acceptance. Deploy backend first, then the site; compare table, drawer
 and copied report on automatic, manual, multi-venue, partial and failed cases.
+
+PR6 review coverage also preserves separate price labels and qualifiers in the
+visible price, escaping them and avoiding a repeated literal condition. Backend
+currentResult uses existing confirmed Thing representatives; raw occurrences remain
+in technical diagnostics.

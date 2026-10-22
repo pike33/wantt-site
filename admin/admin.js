@@ -517,10 +517,23 @@
   const resultPlacesMarkup = result => result.places.length ? result.places.map(place => `
     <div class="result-place-name"><strong>${escapeHtml(place.name)}</strong><span class="source-sub">${escapeHtml(place.authority === 'manual' ? 'Manually selected' : 'Automatically resolved')}${place.scope === 'current_inactive_save' ? ' · inactive Save' : ''}</span></div>`).join('')
     : `<span class="source-main">${result.saveState === 'inactive' ? 'Save inactive' : 'No resolved Place recorded'}</span>`;
+  const containsPriceLiteral = (text, literal) => {
+    for (let at = text.indexOf(literal); at >= 0; at = text.indexOf(literal, at + 1)) {
+      const before = [...text.slice(0, at)].slice(-1)[0] || '';
+      const after = [...text.slice(at + literal.length)][0] || '';
+      if ((!/[\p{L}\p{N}]/u.test(literal[0]) || !/[\p{L}\p{N}]/u.test(before)) &&
+          (!/[\p{L}\p{N}]/u.test([...literal].slice(-1)[0] || '') || !/[\p{L}\p{N}]/u.test(after))) return true;
+    }
+    return false;
+  };
   const priceMarkup = price => {
     const amount = price.text || (price.amountMin !== null && price.amountMin !== undefined
       ? `${price.currency ? price.currency + ' ' : ''}${price.amountMin}${price.amountMax !== null && price.amountMax !== price.amountMin ? '–' + price.amountMax : ''}` : '');
-    return `${escapeHtml(amount)}${price.unit && !String(amount).includes(price.unit) ? ' · ' + escapeHtml(price.unit) : ''}`;
+    const parts = [String(amount)];
+    for (const extra of [price.unit, price.label, ...(Array.isArray(price.qualifiers) ? price.qualifiers : [])]) {
+      if (typeof extra === 'string' && extra && !parts.some(part => containsPriceLiteral(part, extra))) parts.push(extra);
+    }
+    return parts.map(escapeHtml).join(' · ');
   };
   const thingsMarkup = things => things.length ? `<ul class="result-things">${things.map(thing => `<li><span>${escapeHtml(thing.title)}</span>${thing.prices?.length ? `<span class="thing-prices">${thing.prices.map(priceMarkup).join(' · ')}</span>` : ''}</li>`).join('')}</ul>`
     : '<p class="muted">No Things recorded for this venue.</p>';
