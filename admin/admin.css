@@ -453,3 +453,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .outcome-track > span { display: block; height: 100%; background: var(--accent); }
 .current-place-detail { margin: 12px 0; }
 @media (max-width: 600px) { .analytics-metrics { grid-template-columns: 1fr; } .outcome-row { grid-template-columns: 115px 1fr 40px; } .reporting-filters label { flex: 1 1 140px; } }
+
+/* Current delivered result precedes optional technical evidence. */
+.result-overview { margin-bottom: 1.5rem; padding: 1.2rem; border: 1px solid var(--border, #343846); border-radius: 16px; background: #171b24; }
+.result-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.result-heading h3 { margin: .25rem 0 .5rem; font-size: 1.3rem; }
+.result-image { padding: .4rem .65rem; border-radius: 9px; background: #232a38; font-size: .85rem; }
+.result-messages { line-height: 1.55; color: #d9dfed; }
+.result-venue { border-top: 1px solid #343846; margin-top: 1rem; padding-top: 1rem; }
+.result-venue h4, .result-unresolved h4 { margin: 0 0 .3rem; font-size: 1.1rem; }
+.venue-address { line-height: 1.5; font-size: .9rem; color: #bec7db; }
+.result-things { list-style: none; padding: 0; margin: .75rem 0; }
+.result-things li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem; padding: .65rem 0; border-bottom: 1px solid #303643; line-height: 1.5; }
+.thing-prices { color: #b3c3ff; }
+.result-unresolved { padding-top: 1rem; margin-top: .7rem; border-top: 1px solid #343846; }
+.result-place-name + .result-place-name { margin-top: .65rem; }
+.technical-details > summary { cursor: pointer; padding: 1rem 0; color: #a8bfff; font-weight: 600; }
+.technical-details > summary:focus-visible { outline: 2px solid #a8bfff; outline-offset: 4px; }
+@media (max-width: 600px) { .result-overview { padding: .9rem; } .result-things li { display: block; } .thing-prices { display: block; margin-top: .25rem; } }

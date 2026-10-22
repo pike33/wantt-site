@@ -198,3 +198,38 @@ test('owned partial, image pending and mismatched-generation states are never di
     assert.doesNotMatch(content, /<img/); assert.match(content, /&lt;img/);
   }
 });
+
+function deliveredResult(overrides = {}) {
+  return { version: 1, saveState: 'active', thingCount: 2, thingsAvailability: 'recorded',
+    places: [{ sourceVenueId: 'a', name: 'Cedar North', formattedAddress: '1 North St', authority: 'automatic' },
+      { sourceVenueId: 'b', name: 'Maple South', formattedAddress: '2 South St', authority: 'manual' }],
+    things: [{ title: 'Soup', sourceVenueId: 'a', prices: [{ text: '$16', unit: 'per litre', label: 'Lunch special', qualifiers: ['weekdays'] }] },
+      { title: 'Bread', sourceVenueId: 'b', prices: [] }], unresolvedDestinations: [],
+    image: { state: 'persisted', scope: 'current_save', currentAttempt: 'not_recorded' },
+    completion: { rich: 'completed', discovery: 'unknown' },
+    messages: ['Recorded enrichment work completed. Unknown discovery remains unknown.'], ...overrides };
+}
+test('current multi-venue list and detail show actual Places, branch addresses, grouped Things and price units', async () => {
+  const currentResult = deliveredResult(), copied = { schemaVersion: 1, currentResult };
+  const h = harness(u => u.pathname.endsWith('/history') ? { body: { items: [row('multi', { currentPlace: { authority: 'unknown' }, currentResult })], hasMore: false, filters: {} } }
+    : u.pathname.endsWith('/case-file') ? { body: copied }
+    : /enrichment\/multi$/.test(u.pathname) ? { body: detail({ currentResult }) } : undefined);
+  await flush(); const table = h.elements.get('enrichment-body').innerHTML;
+  assert.match(table, /Cedar North/); assert.match(table, /Maple South/); assert.match(table, /2 Things/); assert.match(table, /Thumbnail: Stored/);
+  await h.elements.get('enrichment-body').buttons[0].emit('click'); await flush();
+  const content = h.elements.get('drawer-content').innerHTML;
+  assert.match(content, /1 North St/); assert.match(content, /2 South St/); assert.match(content, /Mixed automatic \/ manual/);
+  assert.match(content, /Soup/); assert.match(content, /\$16 · per litre · Lunch special · weekdays/); assert.match(content, /Bread/);
+  assert.ok(content.indexOf('Current saved result') < content.indexOf('Processing history and technical diagnostics'));
+  await h.click('drawer-copy'); await flush(); assert.deepEqual(JSON.parse(h.clipboard[0]),copied);
+});
+test('caption fallback explains unrun Things, retained image and escapes hostile names without inventing a retry', async () => {
+  const currentResult = deliveredResult({ places: [{ name: '<img onerror=alert(1)>', authority: 'automatic', sourceVenueId: 'a' }],
+    things: [], thingCount: 0, messages: ['Transcript unavailable. Caption-supported Places were saved; Things extraction did not run.'],
+    completion: { rich: 'partial' } });
+  const h = harness(u => /enrichment\/capture-one$/.test(u.pathname) ? { body: detail({ currentResult }) } : undefined);
+  await flush(); await h.elements.get('enrichment-body').buttons[0].emit('click'); await flush();
+  const content = h.elements.get('drawer-content').innerHTML;
+  assert.match(content, /Transcript unavailable/); assert.match(content, /Thumbnail: Stored/); assert.match(content, /&lt;img/); assert.doesNotMatch(content, /<img/);
+  assert.doesNotMatch(content, /<button[^>]*>.*(?:Retry|Resume)/);
+});
