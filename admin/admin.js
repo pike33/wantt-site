@@ -403,6 +403,8 @@
     loading.hidden = true;
     signedOut.hidden = false;
     app.hidden = true;
+    $('usage-content').innerHTML='';
+    $('usage-status').textContent='';
   };
 
   const showError = (message) => {
@@ -623,6 +625,25 @@
     $('analytics-content').hidden = false;
     $('analytics-status').textContent = `${data.from} through ${shiftDay(data.to, -1)} · ${data.timezone} · as of ${formatDateTime(data.asOf)}`;
   };
+  const metric = (label, value, detail) => `<article class="metric-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong><p class="muted">${escapeHtml(detail)}</p></article>`;
+  const ratio = (n, d) => d ? `${n} / ${d}` : 'Not yet eligible';
+  const renderUsage = data => {
+    const c = data.counts, d = data.definitions;
+    $('usage-content').innerHTML = `
+      <section class="analytics-panel"><h3>Getting started</h3><p class="muted">${escapeHtml(d.population)}</p>
+        <div class="analytics-metrics">${metric('First-session Save activation', ratio(c.activatedFirstSession,c.firstUse),'First-use enrolments; observed durable Save, not a backend request')}${metric('Save within 7 days',ratio(c.activated7,c.activationEligible7),'Only first-use contexts with seven elapsed days')}${metric('First-session result observed',ratio(c.firstSessionResults,c.activatedFirstSession),'First-use context with its Save result in the phone read model')}${metric('First-session detail opened',ratio(c.firstSessionDetails,c.activatedFirstSession),'First-use context deliberately opening its saved material')}</div>
+        <p class="muted">${escapeHtml(d.activation)}</p>
+      </section>
+      <section class="analytics-panel"><h3>Later retrieval and overall use</h3>
+        <div class="analytics-metrics">${metric('7-day retrieval',ratio(c.retrieved7,c.retrievalEligible7),`${c.immature7} first-Save windows still immature`)}${metric('30-day retrieval',ratio(c.retrieved30,c.retrievalEligible30),`${c.immature30} first-Save windows still immature`)}${metric('Measured sessions',c.sessions,'Across selected consented contexts; not unique people')}${metric('Save observations',c.saveObservations,`${c.deliberateOpens} deliberate opens · ${c.optionalActions} optional actions`)}</div>
+        <p class="muted">${escapeHtml(d.retrieval)} ${escapeHtml(d.sessions)}</p>
+        <details><summary>Exact weekly context counts</summary><div class="table-wrap"><table class="value-table"><thead><tr><th>Enrolment week</th><th>Contexts</th><th>First use</th><th>Existing</th><th>Saves</th><th>Results</th><th>Deliberate opens</th></tr></thead><tbody>${data.weeks.map(w=>`<tr><td>${escapeHtml(w.week)}</td><td>${w.counts.contexts}</td><td>${w.counts.firstUse}</td><td>${w.counts.existing}</td><td>${w.counts.saveObservations}</td><td>${w.counts.deliveredSaves}</td><td>${w.counts.deliberateOpens}</td></tr>`).join('')}</tbody></table></div></details>
+        <details><summary>First-Save retrieval cohorts</summary><div class="table-wrap"><table class="value-table"><thead><tr><th>First-Save week</th><th>7-day retrieval</th><th>7-day immature</th><th>30-day retrieval</th><th>30-day immature</th></tr></thead><tbody>${(data.retrievalWeeks||[]).map(w=>`<tr><td>${escapeHtml(w.week)}</td><td>${ratio(w.counts.retrieved7,w.counts.eligible7)}</td><td>${w.counts.immature7}</td><td>${ratio(w.counts.retrieved30,w.counts.eligible30)}</td><td>${w.counts.immature30}</td></tr>`).join('')}</tbody></table></div></details>
+        <h4>Overall usage by activity date</h4><p class="muted">${escapeHtml(d.usage||'')}</p><div class="table-wrap"><table class="value-table"><thead><tr><th>Activity week</th><th>Active contexts</th><th>Active savers</th><th>Save observations</th><th>Deliberate opens</th><th>Optional actions</th><th>Sessions</th></tr></thead><tbody>${(data.usageWeeks||[]).map(w=>`<tr><td>${escapeHtml(w.week)}</td><td>${w.counts.activeContexts}</td><td>${w.counts.activeSavers}</td><td>${w.counts.saves}</td><td>${w.counts.opens}</td><td>${w.counts.actions}</td><td>${w.counts.sessions}</td></tr>`).join('')}</tbody></table></div>
+      </section>
+      <section class="analytics-panel"><h3>Measurement health</h3><div class="analytics-metrics">${metric('Measured contexts',c.contexts,`${c.unknownCohort} cohort unknown`)}${metric('Events received',c.receivedEvents,`${c.firstSessionUnknown} first-session histories unknown`)}${metric('Late events',c.lateEvents,'Received more than 24 hours after occurrence; results can revise')}${metric('Queue drops reported',c.droppedEvents,'Only drops from devices that subsequently reconnect')}${metric('Unknown timing / provenance',`${c.clockUnknown} / ${c.unknownProvenance}`,'These observations cannot establish a reliable later return')}</div><p class="muted">Result observations: ${c.failedResults} failed · ${c.partialResults} with unresolved destinations · ${c.pendingResults} pending/processing · ${c.unknownResults} unknown. ${Math.max(0,c.saveObservations-c.deliveredSaves)} observed Saves have no recorded local result yet; that is not proof of failure.</p><p class="muted">${escapeHtml(d.coverage)} ${c.censored7??0} seven-day and ${c.censored30??0} thirty-day follow-ups were censored by context expiry.</p><details><summary>Definitions, privacy and retention</summary><p>${escapeHtml(d.retention)}</p><p>${escapeHtml(d.operational)}</p></details></section>`;
+    $('usage-status').textContent = `${data.from} through ${shiftDay(data.to,-1)} · ${data.timezone} · enrolled contexts · as of ${formatDateTime(data.asOf)} · ${data.filters.audience}`;
+  };
   const loadAnalytics = async () => {
     let range;
     try { range = readRange('analytics'); } catch (error) { showPanelError('analytics-error', error.message); return; }
@@ -631,11 +652,21 @@
     $('analytics-status').textContent = 'Loading Analytics…';
     $('analytics-content').hidden = true;
     showPanelError('analytics-error');
+    $('usage-content').innerHTML = '';
+    $('usage-status').textContent = 'Loading consented usage…';
+    const usageRange = {...range,release:$('usage-release').value.trim()||'all',cohort:$('usage-cohort').value||'all',audience:$('usage-audience').value||'production'};
+    const usage = api(`/admin/api/analytics/usage?${new URLSearchParams(usageRange)}`, {signal:analyticsAbort.signal}).then(result=>{
+      if(generation!==analyticsGeneration||!authenticated)return;
+      if(!result.response.ok||!result.body.counts||!Array.isArray(result.body.weeks)||!result.body.definitions||!result.body.filters)throw new Error('Usage data unavailable');
+      renderUsage(result.body);
+    }).catch(error=>{if(generation===analyticsGeneration&&error.name!=='AbortError')$('usage-status').textContent='Usage data unavailable. This is not a zero-count result.';});
+
     try {
       const result = await api(`/admin/api/analytics/daily?${new URLSearchParams(range)}`, { signal: analyticsAbort.signal });
       if (generation !== analyticsGeneration || !authenticated) return;
       if (!result.response.ok || !Array.isArray(result.body.days) || !result.body.requestOutcomes || !result.body.saveActions || !result.body.cost) throw new Error('Analytics unavailable. This is not a zero-count result.');
       renderAnalytics(result.body);
+      await usage;
     } catch (error) {
       if (generation !== analyticsGeneration || error.name === 'AbortError') return;
       showPanelError('analytics-error', error.message);
@@ -767,6 +798,8 @@
 
     drawerContent.innerHTML = `
       ${currentResultMarkup(d.currentResult)}
+      <section class="detail-section"><h3>Client convergence</h3><p class="muted">Model membership, not pixel visibility. Missing data or optional collection being off is not a failure.</p>${d.clientConvergence ? `<dl class="detail-grid"><dt>Server enriched</dt><dd>${escapeHtml(formatDateTime(d.clientConvergence.serverEnrichedAt))}</dd><dt>Client observed</dt><dd>${escapeHtml(formatDateTime(d.clientConvergence.clientObservedEnrichedAt))}</dd><dt>Local Places</dt><dd>${escapeHtml(formatDateTime(d.clientConvergence.localPlaceAvailableAt))}</dd><dt>Read model included</dt><dd>${escapeHtml(formatDateTime(d.clientConvergence.placesModelIncludedAt))}</dd><dt>Observed / expected</dt><dd>${escapeHtml(d.clientConvergence.observedPlaces??'Unknown')} / ${escapeHtml(d.clientConvergence.expectedPlaces??'Unknown')} · ${escapeHtml(d.clientConvergence.unresolvedDestinations??'Unknown')} unresolved</dd><dt>Outcome</dt><dd>${escapeHtml(d.clientConvergence.outcome)}</dd><dt>Precise server-to-phone duration</dt><dd>Unknown — independent clocks</dd></dl><details><summary>Bounded observations and earlier attempts</summary><pre>${escapeHtml(JSON.stringify(d.clientConvergence.observations,null,2))}</pre></details>` : '<p>Not recorded</p>'}</section>
+
       <div class="detail-grid">
         <div class="detail-stat"><span>State</span><strong>${escapeHtml(statusLabel(r.status))}</strong></div>
         <div class="detail-stat"><span>Authority</span><strong>${escapeHtml(authority)}</strong></div>

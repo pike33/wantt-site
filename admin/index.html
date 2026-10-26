@@ -155,12 +155,18 @@
         </div>
       </section>
       <section id="view-analytics" class="view" hidden>
-        <div class="view-heading"><div><p class="eyebrow">operational reporting</p><h2>Analytics</h2><p class="muted">Sydney-day Save actions and request outcomes, with separate denominators.</p></div></div>
+        <div class="view-heading"><div><p class="eyebrow">private measurement</p><h2>Analytics</h2><p class="muted">Consented usage, later retrieval and measurement coverage. Operational Save counts remain separate below.</p></div></div>
         <form id="analytics-form" class="reporting-filters">
           <label>From (Sydney)<input id="analytics-from" type="date" required></label>
           <label>Through (Sydney)<input id="analytics-through" type="date" required></label>
+          <label>Enrolment release<input id="usage-release" type="text" placeholder="All releases" inputmode="decimal" pattern="[0-9]+[.][0-9]+[.][0-9]+"></label>
+          <label>Usage cohort<select id="usage-cohort"><option value="all">All consented contexts</option><option value="first_use">First use</option><option value="existing">Existing users</option><option value="unknown">Unknown</option></select></label>
+          <label>Audience<select id="usage-audience"><option value="production">Production (exclude QA/team)</option><option value="qa">QA/team only</option><option value="all">All measured contexts</option></select></label>
           <button class="secondary-button" type="submit">Apply</button>
         </form>
+        <p id="usage-status" class="muted reporting-note" role="status"></p>
+        <div id="usage-content"></div>
+        <h3>Separate operational reporting</h3>
         <p id="analytics-error" class="error" role="alert" hidden></p>
         <p id="analytics-status" class="muted reporting-note" role="status"></p>
         <div id="analytics-content" hidden></div>

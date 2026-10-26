@@ -126,9 +126,10 @@ test('Analytics shows exact values, separate denominators, unavailable cost; err
 test('session expiry hides app and stops polling without treating denied data as empty', async () => {
   let expired = false;
   const h = harness(u => expired && u.pathname.endsWith('/history') ? { status: 401, body: {} } : undefined);
-  await flush(); expired = true; await h.click('refresh'); await flush();
+  await flush(); h.elements.get('usage-content').innerHTML='<p>private counts</p>'; expired = true; await h.click('refresh'); await flush();
   // Trigger controlled Google-ready interval if needed.
   for (const fn of h.intervals.slice(1)) fn(); await flush();
+  assert.equal(h.elements.get('usage-content').innerHTML,'');
   assert.equal(h.elements.get('app').hidden, true); assert.equal(h.elements.get('signed-out').hidden, false); assert.match(h.elements.get('auth-error').textContent, /session has ended/);
   const before = h.requests.length; h.intervals[0](); await flush(); assert.equal(h.requests.length, before);
 });
@@ -232,4 +233,17 @@ test('caption fallback explains unrun Things, retained image and escapes hostile
   const content = h.elements.get('drawer-content').innerHTML;
   assert.match(content, /Transcript unavailable/); assert.match(content, /Thumbnail: Stored/); assert.match(content, /&lt;img/); assert.doesNotMatch(content, /<img/);
   assert.doesNotMatch(content, /<button[^>]*>.*(?:Retry|Resume)/);
+});
+
+test('consented usage keeps cohorts, maturity, activity dates and operational denominators distinct',async()=>{
+  const counts={contexts:5,firstUse:3,existing:2,unknownCohort:0,activatedFirstSession:2,activated7:2,activationEligible7:3,firstSessionResults:2,firstSessionDetails:1,firstSessionUnknown:0,deliveredSaves:4,saveObservations:5,openedContexts:3,retrieved7:1,retrievalEligible7:2,retrieved30:0,retrievalEligible30:0,immature7:1,immature30:3,sessions:8,deliberateOpens:6,optionalActions:2,lateEvents:1,droppedEvents:0,clockUnknown:0,unknownProvenance:1,receivedEvents:20,failedResults:1,partialResults:1,pendingResults:0,unknownResults:0};
+  const body={from:'2026-10-01',to:'2026-10-31',asOf:'2026-10-26T00:00:00Z',timezone:'Australia/Sydney',filters:{audience:'production'},counts,weeks:[{week:'2026-10-05',counts}],retrievalWeeks:[{week:'2026-10-05',counts:{eligible7:2,retrieved7:1,immature7:1,eligible30:0,retrieved30:0,immature30:3}}],usageWeeks:[{week:'2026-10-19',counts:{activeContexts:4,activeSavers:3,saves:5,opens:6,actions:2,sessions:8}}],definitions:{population:'Consented contexts, not all installs',activation:'Observed Save, local delivery separate',retrieval:'First-Save cohorts; complete elapsed windows',usage:'Activity dates, not enrolment dates',sessions:'30 minutes without activity',coverage:'Unknown coverage is not failure',retention:'90 / 30 / 365 days',operational:'Operational counts have separate denominators'}};
+  const h=harness(u=>u.pathname.endsWith('/analytics/usage')?{body}:u.pathname.endsWith('/analytics/daily')?{body:{from:body.from,to:body.to,asOf:body.asOf,timezone:body.timezone,days:[],saveActions:{total:7,denominator:'retained saved events',methodology:'server'},requestOutcomes:{total:0,counts:{},denominator:'requests',methodology:'current'},cost:{reason:'unavailable'}}}:undefined);
+  await flush();await h.tabs[3].emit('click');await flush();
+  const html=h.elements.get('usage-content').innerHTML;assert.match(html,/Getting started/);assert.match(html,/Later retrieval and overall use/);assert.match(html,/Measurement health/);assert.match(html,/2 \/ 3/);assert.match(html,/Not yet eligible/);assert.match(html,/First-Save retrieval cohorts/);assert.match(html,/Activity dates, not enrolment dates/);assert.match(h.elements.get('analytics-content').innerHTML,/retained saved events/);
+  h.elements.get('usage-release').value='0.10.1';h.elements.get('usage-cohort').value='existing';await h.submit('analytics-form');await flush();const request=h.requests.filter(r=>r.url.pathname.endsWith('/analytics/usage')).at(-1);assert.equal(request.url.searchParams.get('release'),'0.10.1');assert.equal(request.url.searchParams.get('cohort'),'existing');assert.equal(request.url.searchParams.get('audience'),'production');
+});
+test('unavailable usage never masquerades as zero; client model membership is not pixel visibility',async()=>{
+ const h=harness(u=>u.pathname.endsWith('/analytics/usage')?{status:503,body:{error:'unavailable'}}:/\/enrichment\/capture-one$/.test(u.pathname)?{body:detail({clientConvergence:{serverEnrichedAt:null,clientObservedEnrichedAt:null,localPlaceAvailableAt:null,placesModelIncludedAt:null,expectedPlaces:4,observedPlaces:2,unresolvedDestinations:1,outcome:'not_yet_observed',observations:[]}})}:undefined);
+ await flush();await h.elements.get('enrichment-body').buttons[0].emit('click');await flush();assert.match(h.elements.get('drawer-content').innerHTML,/Model membership, not pixel visibility/);assert.match(h.elements.get('drawer-content').innerHTML,/2 \/ 4/);await h.tabs[3].emit('click');await flush();assert.match(h.elements.get('usage-status').textContent,/unavailable.*not a zero-count/);assert.equal(h.elements.get('usage-content').innerHTML,'');
 });

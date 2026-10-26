@@ -471,3 +471,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .technical-details > summary { cursor: pointer; padding: 1rem 0; color: #a8bfff; font-weight: 600; }
 .technical-details > summary:focus-visible { outline: 2px solid #a8bfff; outline-offset: 4px; }
 @media (max-width: 600px) { .result-overview { padding: .9rem; } .result-things li { display: block; } .thing-prices { display: block; margin-top: .25rem; } }
+
+/* Release 0.10.1: these cards belong to consented usage, not operational totals. */
+#usage-content .analytics-metrics { grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr)); }
+#usage-content .metric-card strong { font-size:clamp(20px,2.1vw,28px);overflow-wrap:anywhere; }
