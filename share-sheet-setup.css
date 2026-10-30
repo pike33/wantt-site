@@ -51,3 +51,20 @@
 @media (max-width: 720px) {
   .setup-page { padding-top: 38px; }.setup-intro { margin-bottom: 62px; }.setup-steps { gap: 58px; }.setup-step, .setup-step:nth-child(even) { grid-template-columns: 1fr; gap: 28px; }.setup-step:nth-child(even) .setup-copy, .setup-step:nth-child(even) .setup-shot { order: initial; }.setup-copy h2 { font-size: 38px; }.setup-copy p { font-size: 17px; }.setup-device { min-height: 490px; }.setup-complete { margin: 78px auto; }.setup-next { align-items: flex-start; flex-direction: column; padding: 30px 26px; gap: 22px; }.setup-troubleshooting { margin-top: 48px; }
 }
+
+/* The portrait exports contain the accepted motion, spotlight and example labels. */
+.setup-shot { width: min(100%, 360px); }
+.setup-media { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: contain; background: #0b1015; border-radius: 18px; }
+.setup-media[hidden], .setup-transport[hidden], .setup-viewing[hidden], [data-seek-label][hidden] { display: none; }
+.setup-transport { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 0; color: var(--muted); font-size: 14px; }
+.setup-transport button { min-height: 44px; min-width: 88px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+.setup-options { margin-top: 8px; border-block: 1px solid var(--line); font-size: 15px; line-height: 1.6; }
+.setup-options summary { cursor: pointer; padding: 16px 0; min-height: 44px; }
+.setup-options ol { padding-left: 24px; }
+.setup-options li { margin-bottom: 12px; }
+.setup-viewing { display: grid; gap: 16px; padding-bottom: 16px; }
+.setup-viewing label { display: grid; gap: 8px; }
+.setup-viewing select, .setup-viewing input { min-height: 44px; width: 100%; font: inherit; }
+.setup-example { font-size: 15px !important; }
+.setup-transport button:focus-visible, .setup-options summary:focus-visible, .setup-viewing :focus-visible { outline: 3px solid #7778f4; outline-offset: 4px; }
+.setup-shot figcaption { margin-inline: 0; }
