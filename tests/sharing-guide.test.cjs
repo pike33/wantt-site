@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 // A small media boundary fake: exercise the shipped controller's user/lifecycle
 // events without a browser, network, analytics, or a new test dependency.
-function fixture({ reduced = false, saved = '0', storageFails = false } = {}) {
+function fixture({ reduced = false, saved = '0', storageFails = false, metadataReady = true } = {}) {
   const element = (props = {}) => {
     const listeners = new Map();
     return Object.assign({
@@ -16,7 +16,7 @@ function fixture({ reduced = false, saved = '0', storageFails = false } = {}) {
     }, props);
   };
   const storage = new Map([['wantt-sharing-guide-v2:first-save', saved]]);
-  const media = element({ duration: 30, currentTime: 0, paused: true, controls: true,
+  const media = element({ duration: metadataReady ? 30 : NaN, currentTime: 0, paused: true, controls: true,
     play() { this.paused = false; this.emit('play'); return Promise.resolve(); },
     pause() { this.paused = true; this.emit('pause'); },
   });
@@ -84,4 +84,20 @@ test('unavailable storage and corrupt checkpoints cannot block optional help', (
   assert.equal(noStorage.nodes['[data-play]'].disabled, false);
   assert.equal(fixture({ saved: 'Infinity' }).media.currentTime, 0);
   assert.equal(fixture({ saved: '999' }).media.currentTime, 29.98);
+});
+
+test('Reduce Motion does not erase an existing checkpoint while the still is selected', () => {
+  const { media, storage } = fixture({ reduced: true, saved: '25' });
+  assert.equal(media.hidden, true);
+  assert.equal(media.currentTime, 25);
+  assert.equal(media.paused, true);
+  assert.equal(storage.get('wantt-sharing-guide-v2:first-save'), '25');
+});
+test('backgrounding before metadata is ready preserves the saved checkpoint for restoration', () => {
+  const { media, document, storage } = fixture({ saved: '25', metadataReady: false });
+  document.hidden = true; document.emit('visibilitychange');
+  assert.equal(storage.get('wantt-sharing-guide-v2:first-save'), '25');
+  media.duration = 30; media.emit('loadedmetadata');
+  assert.equal(media.currentTime, 25);
+  assert.equal(media.paused, true);
 });

@@ -18,6 +18,9 @@
     let restored = false;
     const end = () => video.duration > 0 && video.currentTime >= video.duration - 0.08;
     const checkpoint = () => {
+      // Still-mode selection and early background events can precede metadata.
+      // Do not replace the saved playhead with the player’s initial zero.
+      if (!restored || failed) return;
       try { localStorage.setItem(key, String(video.currentTime)); } catch { /* optional */ }
     };
     const update = () => {
