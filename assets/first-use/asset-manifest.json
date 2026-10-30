@@ -1,0 +1,62 @@
+{
+  "reference": "https://app.notion.com/p/409a8fe7b63481409d2dd8024c699b41",
+  "story": "https://app.notion.com/p/407a8fe7b63481b2958ee9e1b71d90f7",
+  "revision": 2,
+  "privacy": "Only reviewed derivatives are bundled. Original recordings, recipient panels, friend-liker regions, home screens and unrelated saves are excluded. No audio.",
+  "files": {
+    "first-save.mp4": {
+      "sha256": "4087f9aad5d1b177ad6196b83fe45b905640938d36e2269e38009689c913235a",
+      "bytes": 4306382,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "30/1",
+            "nb_frames": "900",
+            "side_data_list": [
+              {}
+            ]
+          }
+        ],
+        "format": {
+          "duration": "30.000000"
+        }
+      }
+    },
+    "first-save.png": {
+      "sha256": "e1a3ade4c1a8e7c7609057cdc37b7ec17667d295bcb4cd00c6fd7a7ff09ab510",
+      "bytes": 1298382
+    },
+    "sharing-shortcut.mp4": {
+      "sha256": "35c65855883511ee63315eae2f9fb2721a7c9c14b4753b5fa19b5b979df2a138",
+      "bytes": 3110162,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "30/1",
+            "nb_frames": "630",
+            "side_data_list": [
+              {}
+            ]
+          }
+        ],
+        "format": {
+          "duration": "21.000000"
+        }
+      }
+    },
+    "sharing-shortcut.png": {
+      "sha256": "dbd11f23c7482635e2afb944091a20990dcb8c098c2f33e466684b38162464da",
+      "bytes": 354953
+    }
+  }
+}
