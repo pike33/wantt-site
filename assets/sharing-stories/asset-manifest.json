@@ -1,0 +1,109 @@
+{
+  "revision": 1,
+  "reference": "https://app.notion.com/p/409a8fe7b63481409d2dd8024c699b41",
+  "approved": "Full chaptered guide with A2 warm-music balance, authorised for the public setup page on1November2026",
+  "privacy": "Reviewed safe rendered crops only; private recipient/friend regions, home screen, unrelated library items and creator audio excluded. Narration/music/effects are authorised generated assets. No API key or raw recording.",
+  "music": {
+    "sourceSha256": "3ff9f8d8212d341f08517b1f8bf07cc2a07d340cd239a7dd536bd8e6df05a389",
+    "sourceUnchanged": true,
+    "approvedMusicLevelIncreaseDb": 4,
+    "loopBufferSeconds": 14,
+    "loopStartSeconds": 2,
+    "loopEndSeconds": 14,
+    "loopPeriodSeconds": 12,
+    "crossfadeSeconds": 2,
+    "crossfadeMethod": "equal-power overlap of source12..14s into source0..2s",
+    "rmsMatchingGainDb": -0.4866466023596562,
+    "loopWrapSampleDelta": 0.0004540648552247093,
+    "normalAdjacentMaxDelta": 0.014118780840166123,
+    "newProviderRequests": 0,
+    "newCredits": 0,
+    "audibleLoopAcceptance": "Human listening required; sample continuity and full decode do not establish musical acceptance"
+  },
+  "files": {
+    "01-share.jpg": {
+      "sha256": "cf8f7ebdf09e6f7a310034256ed8d236a45651a7d15350ee1f68ff318a025391",
+      "bytes": 97040
+    },
+    "01-share.mp4": {
+      "sha256": "ad64f9f3ac80f238650bad03356f4a605a683c9c7194dd91844234ba4444da0e",
+      "bytes": 755616
+    },
+    "02-share-to.jpg": {
+      "sha256": "4d7bfee69b62797305acc75cd34e17a38d9aa31ee8f1b0363c687d8947f6cc7b",
+      "bytes": 34493
+    },
+    "02-share-to.mp4": {
+      "sha256": "24f74387c601c2a1828b7e71c71bfb30fa7f530d848211fc7984c535eac1629e",
+      "bytes": 73330
+    },
+    "03-wantt.jpg": {
+      "sha256": "9cefcc691d336dbc27eb23aa31008ea930af454ca50971f0664d2e4e14ab2c56",
+      "bytes": 42783
+    },
+    "03-wantt.mp4": {
+      "sha256": "8a492e534489b2c0dee4162c003a2aa532e354322d91f5a81d98a658a85393dc",
+      "bytes": 197141
+    },
+    "04-saved.jpg": {
+      "sha256": "e21a53c78b67063573060d6f5f692a5c7f13fd7d7ed33f809b3ad2537bdbb7d5",
+      "bytes": 34516
+    },
+    "04-saved.mp4": {
+      "sha256": "f0c45bfaafee702701914d9baffd533cb2b78bc6f75222092e10d1f072615589",
+      "bytes": 112378
+    },
+    "05-return.jpg": {
+      "sha256": "fb7fe5ef065aac373e293a9c4c4f34eda8c5bf3c0398ea9616e56268d0d04d77",
+      "bytes": 21750
+    },
+    "05-return.mp4": {
+      "sha256": "d08ccc72736458af936874bed894198e1ab0ee8d374f3467e1b4ecaf6ead53af",
+      "bytes": 137476
+    },
+    "06-details.jpg": {
+      "sha256": "9b4467243627cdefc44ee8ce65a6694fcf5f1af605b0b27ae2bfe80a6188938a",
+      "bytes": 49813
+    },
+    "06-details.mp4": {
+      "sha256": "c4b6275a191f3afcc1401e448677a4a03f03c8e2cc2d94fb7fb8e9e853cc6e95",
+      "bytes": 221262
+    },
+    "07-edit.jpg": {
+      "sha256": "d2c4fdd155aef4d87a3423e267d1c764c65b11343abbffe42e61815df7c667bc",
+      "bytes": 28562
+    },
+    "07-edit.mp4": {
+      "sha256": "ae026d445847fd1dc46c4a2c4750db7f1410cfffabb92a823106a6843c430c65",
+      "bytes": 100219
+    },
+    "08-add.jpg": {
+      "sha256": "2e59dc877ca919bca1dd810cd0f805e3cd6bfc09280968768e9b65f143d47aac",
+      "bytes": 50258
+    },
+    "08-add.mp4": {
+      "sha256": "47e85e822367f9f508ec1a75cdeccae8376b2f42e3dc4742ac961a2a144f8bf8",
+      "bytes": 98027
+    },
+    "09-finish.jpg": {
+      "sha256": "ba5e7a8da12e3245565832fe64cd309c742805689a3b30ef2d304e2205dd51ff",
+      "bytes": 54699
+    },
+    "09-finish.mp4": {
+      "sha256": "718f446d941b305202124c17fe2b8ed05ad67b436e4d716bb770f9cb8f1041f9",
+      "bytes": 204532
+    },
+    "approved-warm-loop.wav": {
+      "sha256": "c5a82dfcf70631deef94591a957db5d45e13576fea2056c54cdf560d4f12dd44",
+      "bytes": 2688044
+    },
+    "first-save-complete.mp4": {
+      "sha256": "3d9cb6438efe4e3eb78580af07076a82086add7b6f67fbbc33393c2523dddf8a",
+      "bytes": 2928071
+    },
+    "shortcut-complete.mp4": {
+      "sha256": "54e8457fb8d500a9bfc1af266bf2a2cceeb84e0afe9ff586e0782fc3be22121e",
+      "bytes": 692418
+    }
+  }
+}
