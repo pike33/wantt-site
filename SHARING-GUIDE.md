@@ -1,24 +1,39 @@
-# Release 0.11.0 E sharing help
+# Share Sheet setup: chaptered sharing guide
 
-Story: https://app.notion.com/p/407a8fe7b63481b2958ee9e1b71d90f7
 Reference: https://app.notion.com/p/409a8fe7b63481409d2dd8024c699b41
 
-The complete first-save/return and optional shortcut use the same reviewed
-1080 × 1920, silent 30/21-second exports as the native app. Asset hashes and
-probes are in `assets/first-use/asset-manifest.json`. Original recordings and
-personal recipient/friend-liker regions are excluded. Optional customisation
-shows both checkmarks. The first-save lesson is sufficient without Favourites.
+The existing `/share-sheet-setup.html` route now hosts the approved portrait
+Stories-style guide: six first-save chapters (36.5 seconds) and three separate
+optional Favourites chapters (20 seconds). Real reviewed Instagram/iPhone crops,
+Vivian's existing narration and the approved A2 warm music are retained. Asset
+hashes/provenance are in `assets/sharing-stories/asset-manifest.json`.
 
-No autoplay or auto-advance. The enhanced player has one Play/Pause/Replay
-control and one disclosure for full text, motion/still and seeking. Switching
-tabs/apps pauses. Only lesson playheads are saved locally under a v2 key;
-no account/content data, network measurement or analytics is added. Reduce
-Motion selects still/text; choosing Motion starts paused. Errors expose the
-written alternative. Without JavaScript, native controls and open text remain.
-Web checkpoints reset independently of app/OS settings and never verify setup.
+Right tap advances; left tap replays after one second or returns near the start.
+Back/Next and keyboard controls provide alternatives. Manual playback, end holds,
+caption text, still/reduced-motion viewing, background pause and paused reload
+remain available. Continuous progression is an opt-in viewing option.
 
-Run `node --test tests/sharing-guide.test.cjs` and
-`node --test admin/tests/reporting.test.cjs`. Also review at 320/390 px, with
-Reduce Motion and JavaScript disabled, and test late seeking, background pause,
-paused reload and end/Replay. Browser checks do not replace native iPhone or
-uncoached newcomer acceptance. Publication follows the normal site PR workflow.
+One shared Web Audio music transport per lesson retains its cursor across chapter
+changes. Sound off silences narration, baked action cues and music together.
+Pause, buffering, backgrounding and chapter-end holds pause music; late decoding
+cannot revive it. Ducking follows the current chapter's actual playhead, not a
+stale full-film timeline. The same approved music is locally crossfaded; no new
+provider requests or credits. Cue sounds are baked into narrated chapter files,
+so navigation never leaves timers that trigger stale taps.
+
+The complete-film MP4s include music for the progressive/native-control fallback.
+Chapter MP4s contain narration/cues only; do not play a mixed film beneath the
+shared music again. The normal player is revealed only after successful setup;
+without JavaScript, full examples and written instructions remain usable.
+
+Only web viewing checkpoints are stored locally, under a new website-specific
+key. No account/content data, analytics, provider API calls, app permissions or
+OS settings are changed by watching. `wantt://saves` is the existing app route;
+opening it requires a deliberate click. Existing noindex metadata, site/footer
+links, help and troubleshooting are preserved. Native app/backend are unchanged.
+
+Run `node --test tests/sharing-guide.test.cjs` and the retained admin reporting
+checks. Browser verification covers the integrated page at mobile/desktop widths,
+chapter controls, audio races, reduced motion, fallback/error behavior and actual
+loop boundaries. Publication uses the existing website PR/Pages workflow. Browser
+checks do not establish physical-iPhone/native or new-user acceptance.

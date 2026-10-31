@@ -1,103 +1,33 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const { readFileSync } = require('node:fs');
-const { resolve } = require('node:path');
-const vm = require('node:vm');
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {readFileSync}=require('node:fs');
+const {resolve}=require('node:path');
+const vm=require('node:vm');
 
-// A small media boundary fake: exercise the shipped controller's user/lifecycle
-// events without a browser, network, analytics, or a new test dependency.
-function fixture({ reduced = false, saved = '0', storageFails = false, metadataReady = true } = {}) {
-  const element = (props = {}) => {
-    const listeners = new Map();
-    return Object.assign({
-      hidden: false, value: '0', textContent: '',
-      addEventListener(name, fn) { listeners.set(name, fn); },
-      emit(name, event) { return listeners.get(name)?.(event); },
-    }, props);
-  };
-  const storage = new Map([['wantt-sharing-guide-v2:first-save', saved]]);
-  const media = element({ duration: metadataReady ? 30 : NaN, currentTime: 0, paused: true, controls: true,
-    play() { this.paused = false; this.emit('play'); return Promise.resolve(); },
-    pause() { this.paused = true; this.emit('pause'); },
-  });
-  const nodes = Object.fromEntries(['.setup-still', '.setup-transport', '[data-play]', '[data-status]', 'details', '.setup-viewing', '[data-mode]', '[data-seek]', '[data-seek-label]'].map(key => [key, element()]));
-  nodes.video = media;
-  const root = { dataset: { lesson: 'first-save' }, querySelector: key => nodes[key] };
-  const document = element({ hidden: false, querySelectorAll: () => [root] });
-  const motion = element({ matches: reduced });
-  const window = element({ matchMedia: () => motion });
-  vm.runInNewContext(readFileSync(resolve(__dirname, '../sharing-guide.js'), 'utf8'), {
-    window, document, localStorage: {
-      getItem(key) { if (storageFails) throw Error('unavailable'); return storage.get(key) ?? null; },
-      setItem(key, value) { if (storageFails) throw Error('unavailable'); storage.set(key, value); },
-    },
-  });
-  return { nodes, media, document, window, motion, storage };
+// Exercise the public music transport's lifecycle boundaries, not media synthesis.
+function fixture({delayed=false,broken=false}={}){
+ const contexts=[];let release;
+ const decoded=delayed?new Promise(r=>{release=r;}):Promise.resolve({duration:14});
+ class Audio{
+  constructor(){this.currentTime=0;this.state='suspended';this.destination={};this.sources=[];contexts.push(this);}
+  resume(){this.state='running';return Promise.resolve();}
+  createGain(){return{connect(){},disconnect(){},gain:{value:1,cancelScheduledValues(){},setValueAtTime(v){this.value=v;},setTargetAtTime(v){this.value=v;},linearRampToValueAtTime(v){this.value=v;}}};}
+  decodeAudioData(){return decoded;}
+  createBufferSource(){const s={connect(){},disconnect(){},start(at,offset){this.offset=offset;this.started=true;},stop(){this.stopped=true;}};this.sources.push(s);return s;}
+ }
+ const document={hidden:false},window={AudioContext:Audio};let errors=0;
+ vm.runInNewContext(readFileSync(resolve(__dirname,'../sharing-guide-music.js'),'utf8'),{window,document,Map,Object,Number,Math,fetch:async()=>({ok:!broken,arrayBuffer:async()=>new ArrayBuffer(2)})});
+ const music=new window.WanttLessonMusic({file:'approved.wav',loopStart:2,loopEnd:14,fadeSeconds:.06},()=>errors++);music.select('first-save');
+ return{music,contexts,document,release:()=>release?.({duration:14}),errors:()=>errors};
 }
 
-test('restores a late checkpoint paused; only deliberate play starts the example', async () => {
-  const { nodes, media } = fixture({ saved: '25' });
-  assert.equal(media.currentTime, 25);
-  assert.equal(media.paused, true);
-  assert.equal(media.controls, false);
-  await nodes['[data-play]'].emit('click');
-  assert.equal(media.paused, false);
-  assert.equal(nodes['[data-play]'].textContent, 'Pause');
-});
-test('seeking uses the chosen value, pauses and retains the new checkpoint', () => {
-  const { nodes, media, storage } = fixture();
-  nodes['[data-seek]'].value = '27';
-  nodes['[data-seek]'].emit('input');
-  assert.equal(media.currentTime, 27);
-  assert.equal(media.paused, true);
-  assert.equal(storage.get('wantt-sharing-guide-v2:first-save'), '27');
-});
-test('switching apps checkpoints and returning never resumes playback automatically', async () => {
-  const { nodes, media, document } = fixture();
-  await nodes['[data-play]'].emit('click');
-  media.currentTime = 12;
-  document.hidden = true; document.emit('visibilitychange');
-  assert.equal(media.paused, true);
-  document.hidden = false; document.emit('visibilitychange');
-  assert.equal(media.paused, true);
-});
-test('completion exposes Replay and never starts another lesson', async () => {
-  const { nodes, media } = fixture();
-  media.currentTime = 30; media.emit('ended');
-  assert.equal(nodes['[data-play]'].textContent, 'Replay');
-  assert.equal(nodes['[data-status]'].textContent, 'Example finished');
-  await nodes['[data-play]'].emit('click');
-  assert.equal(media.currentTime, 0);
-});
-test('reduced motion and failed video retain still/written instructions', () => {
-  const { nodes, media } = fixture({ reduced: true });
-  assert.equal(media.hidden, true);
-  assert.equal(nodes['.setup-still'].hidden, false);
-  assert.equal(nodes.details.open, true);
-  media.emit('error');
-  assert.equal(nodes['[data-mode]'].disabled, true);
-  assert.match(nodes['[data-status]'].textContent, /written steps/);
-});
-test('unavailable storage and corrupt checkpoints cannot block optional help', () => {
-  const noStorage = fixture({ storageFails: true });
-  assert.equal(noStorage.media.currentTime, 0);
-  assert.equal(noStorage.nodes['[data-play]'].disabled, false);
-  assert.equal(fixture({ saved: 'Infinity' }).media.currentTime, 0);
-  assert.equal(fixture({ saved: '999' }).media.currentTime, 29.98);
-});
-
-test('Reduce Motion does not erase an existing checkpoint while the still is selected', () => {
-  const { media, storage } = fixture({ reduced: true, saved: '25' });
-  assert.equal(media.hidden, true);
-  assert.equal(media.currentTime, 25);
-  assert.equal(media.paused, true);
-  assert.equal(storage.get('wantt-sharing-guide-v2:first-save'), '25');
-});
-test('backgrounding before metadata is ready preserves the saved checkpoint for restoration', () => {
-  const { media, document, storage } = fixture({ saved: '25', metadataReady: false });
-  document.hidden = true; document.emit('visibilitychange');
-  assert.equal(storage.get('wantt-sharing-guide-v2:first-save'), '25');
-  media.duration = 30; media.emit('loadedmetadata');
-  assert.equal(media.currentTime, 25);
-  assert.equal(media.paused, true);
-});
+test('constructing, selecting or muting never starts audio',()=>{const f=fixture();f.music.setMuted(true);f.music.select('shortcut');assert.equal(f.contexts.length,0);assert.equal(f.music.status().playing,false);});
+test('a late decode cannot start music after Pause',async()=>{const f=fixture({delayed:true});const p=f.music.play();f.music.pause();f.release();await p;assert.equal(f.contexts[0].sources.length,0);assert.equal(f.music.status().wanted,false);});
+test('resume keeps the cursor and wraps beyond the intro into the loop',async()=>{const f=fixture();await f.music.play();f.contexts[0].currentTime=35;f.music.pause();assert.equal(f.music.position,35);await f.music.play();assert.equal(f.contexts[0].sources[1].offset,11);assert.equal(f.contexts[0].sources[1].loopStart,2);assert.equal(f.contexts[0].sources[1].loopEnd,14);});
+test('replaying within a lesson does not recreate an active source',async()=>{const f=fixture();await f.music.play();f.contexts[0].currentTime=4;await f.music.play();assert.equal(f.contexts[0].sources.length,1);assert.equal(f.music.position,4);});
+test('lesson changes pause and preserve independent positions',async()=>{const f=fixture();await f.music.play();f.contexts[0].currentTime=3;f.music.select('shortcut');assert.equal(f.music.position,0);assert.equal(f.music.status().playing,false);await f.music.play();f.contexts[0].currentTime=5;f.music.select('first-save');assert.equal(f.music.position,3);assert.equal(f.music.status().playing,false);f.music.select('shortcut');assert.equal(f.music.position,2);});
+test('mute silences the background gain and unmute never starts a paused source',async()=>{const f=fixture();await f.music.play();f.music.setMuted(true);assert.equal(f.music.status().gain,0);f.music.pause();f.music.setMuted(false);assert.equal(f.music.status().playing,false);assert.ok(f.music.status().gain>0);});
+test('ducking is bounded and cannot override Sound off',async()=>{const f=fixture();await f.music.play();f.music.setDuck(.1);assert.equal(f.music.status().duck,.63);f.music.setMuted(true);f.music.setDuck(10);assert.equal(f.music.status().gain,0);f.music.setMuted(false);assert.equal(f.music.status().gain,1);});
+test('unavailable optional music reports once and never starts a source',async()=>{const f=fixture({broken:true});await f.music.play();await f.music.play();assert.equal(f.errors(),1);assert.equal(f.music.status().playing,false);assert.equal(f.contexts[0].sources.length,0);});
+test('hidden-page playback intent cannot start music',async()=>{const f=fixture();f.document.hidden=true;await f.music.play();assert.equal(f.contexts[0].sources.length,0);f.document.hidden=false;await f.music.play();assert.equal(f.contexts[0].sources.length,1);});
+test('restoring invalid cursor data cannot create audio or poison a later loop',()=>{const f=fixture();f.music.restore({shortcut:5,invalid:Infinity,negative:-1,text:'3'});f.music.select('shortcut');assert.equal(f.music.position,5);f.music.select('invalid');assert.equal(f.music.position,0);assert.equal(f.contexts.length,0);});
