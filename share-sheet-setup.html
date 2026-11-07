@@ -12,9 +12,9 @@
   <link rel="canonical" href="https://wantt.io/share-sheet-setup.html">
   {% include site-icons.html %}
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="share-sheet-setup.css?v=stories-1">
+  <link rel="stylesheet" href="share-sheet-setup.css?v=stories-3">
 </head>
-<body class="sharing-setup-page" data-guide-version="stories-1">
+<body class="sharing-setup-page" data-guide-version="stories-3">
   <a class="skip-link" href="#guide-main">Skip to sharing guide</a>
   <header class="site-header shell">
     <a class="brand" href="/" aria-label="Wantt home">wantt</a>
@@ -37,12 +37,11 @@
         <div class="progress" id="progress" aria-label="Chapter progress"></div>
         <button class="tap-zone previous-zone" id="previous-zone" type="button" tabindex="-1" aria-hidden="true"></button>
         <button class="tap-zone next-zone" id="next-zone" type="button" tabindex="-1" aria-hidden="true"></button>
-        <button class="start-overlay" id="start-overlay" type="button"><span class="play-disc" aria-hidden="true">▶</span><span id="start-label">Play lesson</span></button>
         <div class="error-overlay" id="error-overlay" hidden><strong>Video unavailable</strong><p>The written steps are below.</p><button id="retry" type="button">Try playback again</button></div>
       </div>
-      <div class="chapter-meta"><span id="chapter-count">1 of 5</span><h2 id="chapter-title">Share from Instagram</h2></div>
+      <div class="chapter-meta"><span id="chapter-count">1 of 6</span><h2 id="chapter-title">Share from Instagram</h2></div>
       <div class="controls" aria-label="Playback controls">
-        <button id="back" type="button" aria-label="Replay chapter or go to previous chapter">← Back</button>
+        <button id="back" type="button" aria-label="Previous chapter">← Back</button>
         <button id="play" class="primary" type="button">Play</button>
         <button id="next" type="button">Next →</button>
       </div>
@@ -50,14 +49,12 @@
       <section id="finished" class="finished" hidden tabindex="-1" aria-label="Lesson finished"><h3>You’re ready to try it.</h3><p>On your iPhone, open Wantt or return to Instagram to save a post. Watching this guide does not change your Share Sheet settings.</p><a class="open-app" href="wantt://saves">Open Wantt</a><button id="restart-lesson" type="button">Replay this lesson</button></section>
       <div class="options"><button id="sound" type="button" aria-pressed="true">Sound on</button><button id="caption-toggle" type="button" aria-pressed="false">Captions</button><button id="still-toggle" type="button" aria-pressed="false">Still view</button></div>
       <p class="caption" id="caption" hidden aria-live="off"></p>
-      <p class="gesture-hint">Tap right to go ahead. Tap left to replay or go back.</p>
+      <p class="gesture-hint">Tap right for the next chapter. Tap left to go back.</p>
       <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
       <details id="instructions"><summary>Instructions &amp; viewing options</summary>
         <div class="details-content"><ol id="steps"></ol>
-          <p id="music-warning" role="status" hidden>Background music could not load. The spoken instructions still work.</p>
-          <p>Tap left after the first second to replay this chapter; tap left near its start to go back. Use the arrow keys, or the Back and Next buttons, if you prefer. Space plays or pauses. Hold the picture to pause while watching.</p>
-          <p>Playback starts only when you press Play or choose a chapter. Chapters wait for you at the end. Your position is kept on this browser and resumes paused. Leaving the page pauses playback.</p>
-          <label class="check"><input id="auto-advance" type="checkbox"> Continue to the next chapter automatically</label>
+          <p>Tap right to skip to the next chapter, or left to go back. At the beginning, tap left to restart the first chapter. Use the arrow keys, or the Back and Next buttons, if you prefer. Space plays or pauses. Hold the picture to pause while watching.</p>
+          <p>Press Play to watch the whole lesson. It keeps playing as each chapter starts. Your position is kept on this browser and resumes paused. Leaving the page pauses playback.</p>
           <p>This is a recorded example. Watching does not save a post or configure your iPhone. Processing time and available details vary.</p>
           <p class="privacy">Privacy: Wantt uses its servers and external metadata and AI services to identify places and Things to try from saved links and public post details. Private notes are not part of this automatic processing. Your viewing position is kept only in this browser. <a href="privacy.html">Privacy</a>.</p>
         </div>
@@ -67,7 +64,7 @@
     <section class="plain-guide" id="plain-guide" aria-label="Complete sharing examples and written steps">
       <h2>Save from Instagram.</h2>
       <p>Watch the full example or follow these steps on your iPhone.</p>
-      <video controls playsinline preload="none" poster="assets/first-use/first-save.png" aria-label="Complete first-save example"><source src="assets/sharing-stories/first-save-complete.mp4" type="video/mp4"></video>
+      <video controls playsinline preload="none" poster="assets/first-use/first-save.png" aria-label="Complete first-save example"><source src="assets/sharing-stories/first-save-complete.mp4?v=stories-3" type="video/mp4"></video>
       <ol>
         <li>Open a public Instagram post or Reel. Tap the share arrow, then <strong>Share to…</strong> if it appears.</li>
         <li>Swipe along the iPhone app row and choose <strong>Wantt</strong>.</li>
@@ -77,7 +74,7 @@
         <li>Open a place for its available details and <strong>Things to try</strong>.</li>
       </ol>
       <h2>Optional sharing shortcut.</h2>
-      <video controls playsinline preload="none" poster="assets/first-use/sharing-shortcut.png" aria-label="Complete optional Favourites example"><source src="assets/sharing-stories/shortcut-complete.mp4" type="video/mp4"></video>
+      <video controls playsinline preload="none" poster="assets/first-use/sharing-shortcut.png" aria-label="Complete optional Favourites example"><source src="assets/sharing-stories/shortcut-complete.mp4?v=stories-3" type="video/mp4"></video>
       <ol>
         <li>In the sharing app row, open <strong>More</strong>, then <strong>Edit</strong>.</li>
         <li>Tap the <strong>+</strong> beside Wantt to add it to Favourites when offered.</li>
@@ -94,8 +91,7 @@
     <a href="support.html">Get help <span aria-hidden="true">→</span></a>
   </aside>
   {% include footer.html %}
-  <script src="sharing-guide-chapters.js?v=stories-1" defer></script>
-  <script src="sharing-guide-music.js?v=stories-1" defer></script>
-  <script src="sharing-guide.js?v=stories-1" defer></script>
+  <script src="sharing-guide-chapters.js?v=stories-3" defer></script>
+  <script src="sharing-guide.js?v=stories-3" defer></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {
-  "revision": 1,
+  "revision": 3,
   "reference": "https://app.notion.com/p/409a8fe7b63481409d2dd8024c699b41",
-  "approved": "Full chaptered guide with A2 warm-music balance, authorised for the public setup page on1November2026",
+  "approved": "Reviewed chaptered picture streams and approved A2 warm music. Rachel audition approved; full narration and player changes staged for review.",
   "privacy": "Reviewed safe rendered crops only; private recipient/friend regions, home screen, unrelated library items and creator audio excluded. Narration/music/effects are authorised generated assets. No API key or raw recording.",
   "music": {
     "sourceSha256": "3ff9f8d8212d341f08517b1f8bf07cc2a07d340cd239a7dd536bd8e6df05a389",
@@ -98,12 +98,33 @@
       "bytes": 2688044
     },
     "first-save-complete.mp4": {
-      "sha256": "3d9cb6438efe4e3eb78580af07076a82086add7b6f67fbbc33393c2523dddf8a",
-      "bytes": 2928071
+      "sha256": "43e3742964972e373662813d81a2cf1ddc4a6f4527548e469c09b240550c953e",
+      "bytes": 5109054
     },
     "shortcut-complete.mp4": {
-      "sha256": "54e8457fb8d500a9bfc1af266bf2a2cceeb84e0afe9ff586e0782fc3be22121e",
-      "bytes": 692418
+      "sha256": "59ea2e8d964db15e7a64c9d0c60a30a1aae82fbf8ef91cf9956ebb5a51bef9b8",
+      "bytes": 1116732
     }
-  }
+  },
+  "narration": {
+    "voice": "Rachel - Fun, Casual, Australian Woman, English speaker",
+    "model": "eleven_v4",
+    "approvedExcerptSha256": "08a658f4832deda9c12dcfd772c1cb75df45eeff3d59b7e0780cac154990b238",
+    "chapterStarts": {
+      "first-save": [
+        0,
+        6.5,
+        10.5,
+        17.0,
+        23.0,
+        30.0
+      ],
+      "shortcut": [
+        0,
+        6,
+        11
+      ]
+    }
+  },
+  "visuals": "Reviewed source crops with clearer tap spotlights, the recorded app-row swipe with a dotted trail, and an illustrated drag between recorded Favourites states."
 }
