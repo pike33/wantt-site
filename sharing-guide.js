@@ -1,110 +1,277 @@
 (() => {
   'use strict';
-  const guide=window.WANTT_GUIDE,$=(id)=>document.getElementById(id);
-  const video=$('video'),picture=$('still'),player=$('player');
-  const storageKey='wantt-'+guide.version;
-  const music=new window.WanttLessonMusic(guide.music,()=>{$('music-warning').hidden=false;announce('Background music could not load. The spoken instructions still work.');});
-  // Read-only preview diagnostics for authored transport checks.
-  window.wanttMusicStatus=()=>music.status();
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  let lesson=guide.lessons[0],index=0,epoch=0,playing=false,completed=false,failed=false,still=reduced.matches,captioned=false,wantsPlay=false,hold=null;
-  let pendingSeek=0,automatic=false,playRequest=0,musicSwitch=false,musicTimer=null,musicFrame=null;
-  const history=new Map();
-  try { const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved?.version===guide.version){music.restore(saved.music);const found=guide.lessons.find(l=>l.id===saved.lesson);if(found&&found.chapters.length){lesson=found;index=Math.max(0,Math.min(found.chapters.length-1,Number.isInteger(saved.index)?saved.index:0));pendingSeek=Number.isFinite(saved.time)?Math.max(0,saved.time):0;}} } catch {}
-  const requested=guide.lessons.find(l=>'#'+l.id===location.hash);
-  if(requested&&requested!==lesson){lesson=requested;index=0;pendingSeek=0;}
-  const chapter=()=>lesson.chapters[index];
-  const duration=()=>Number.isFinite(video.duration)&&video.duration>0?video.duration:chapter().duration;
-  const time=()=>Number.isFinite(video.currentTime)?video.currentTime:0;
-  function save(){if(!chapter())return;try{localStorage.setItem(storageKey,JSON.stringify({version:guide.version,lesson:lesson.id,index,time:video.readyState?time():pendingSeek,music:music.positions()}));}catch{}}
-  function announce(text){$('announcement').textContent=text;}
-  function syncMusic(){
-    music.setMuted(video.muted);const c=chapter(),step=c.musicDuckStep||.05,curve=c.musicDuck||[1],at=time()/step;
-    const n=Math.min(curve.length-1,Math.floor(at)),next=Math.min(curve.length-1,n+1),part=at-Math.floor(at);
-    music.setDuck(curve[n]*(1-part)+curve[next]*part);
+  const guide = window.WANTT_GUIDE;
+  const $ = id => document.getElementById(id);
+  const video = $('video');
+  const picture = $('still');
+  const player = $('player');
+  const playButton = $('play');
+  const nextButton = $('next');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const storageKey = 'wantt-' + guide.version;
+  const positions = new Map();
+  const bound = (value, max) => Number.isFinite(value) ? Math.min(max, Math.max(0, value)) : 0;
+  let lesson = guide.lessons[0], position = 0, index = -1;
+  let ready = false, completed = false, failed = false, still = reduced.matches, captioned = false;
+  let wantsPlay = false, attempt = 0, hold;
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    if (saved) {
+      for (const item of guide.lessons) positions.set(item.id, bound(saved.positions?.[item.id], item.duration));
+      lesson = guide.lessons.find(item => item.id === saved.lesson) || lesson;
+    } else {
+      const old = JSON.parse(localStorage.getItem('wantt-web-sharing-stories-v1') || 'null');
+      const previous = guide.lessons.find(item => item.id === old?.lesson);
+      const chapter = previous?.chapters[old?.index];
+      if (old?.version === 'web-sharing-stories-v1' && chapter) {
+        lesson = previous;
+        positions.set(previous.id, chapter.start + bound(old.time, chapter.duration));
+      }
+    }
+  } catch {}
+  lesson = guide.lessons.find(item => '#' + item.id === location.hash) || lesson;
+
+  function save() {
+    positions.set(lesson.id, position);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({lesson: lesson.id, positions: Object.fromEntries(positions)}));
+    } catch {}
   }
-  function musicTick(){musicFrame=null;syncMusic();if(playing)musicFrame=requestAnimationFrame(musicTick);}
-  function stopMusic(){musicSwitch=false;clearTimeout(musicTimer);music.pause();if(musicFrame!==null)cancelAnimationFrame(musicFrame);musicFrame=null;}
-  function draw(){
-    if(!chapter())return;syncMusic();
-    $('play').textContent=completed?'Replay':playing?'Pause':'Play';
-    $('next').textContent=index===lesson.chapters.length-1?'Finish →':'Next →';
-    $('back').setAttribute('aria-label',time()>1||index===0?'Restart chapter':'Previous chapter');
-    $('finish').hidden=!(completed&&index===lesson.chapters.length-1);
-    $('finish').textContent=lesson.id==='first-save'?'Start using Wantt':'Finish shortcut lesson';
-    $('chapter-count').textContent=`${index+1} of ${lesson.chapters.length}`;
-    $('chapter-title').textContent=completed&&index===lesson.chapters.length-1?'Lesson complete':chapter().title;
-    // One playback control, below the picture. Never cover the real action row
-    // with a second Play/Replay button or block story-edge navigation.
-    $('start-overlay').hidden=true;
-    $('start-label').textContent=completed?'Replay chapter':index===0?'Play lesson':'Play chapter';
-    $('error-overlay').hidden=!failed;
-    video.hidden=still;picture.hidden=!still;
-    $('still-toggle').setAttribute('aria-pressed',String(still));
-    $('caption-toggle').setAttribute('aria-pressed',String(captioned));
-    $('caption').hidden=!captioned;$('caption').textContent=chapter().narration;
-    $('sound').setAttribute('aria-pressed',String(!video.muted));$('sound').textContent=video.muted?'Sound off':'Sound on';
-    $('auto-advance').checked=automatic;
-    [...$('progress').children].forEach((segment,n)=>{segment.firstChild.style.width=(n<index?100:n===index?Math.min(100,time()/duration()*100):0)+'%';});
+
+  function announce(text) {
+    $('announcement').textContent = text;
   }
-  function pause(){playRequest++;wantsPlay=false;video.pause();playing=false;stopMusic();save();draw();}
-  async function play(){
-    if(still){still=false;video.hidden=false;picture.hidden=true;}
-    if(failed)return;
-    void music.unlock();
-    if(completed){video.currentTime=0;completed=false;}
-    const token=epoch,attempt=++playRequest;wantsPlay=true;
-    try{await video.play();if(token!==epoch||attempt!==playRequest)return;if(!wantsPlay||document.hidden){pause();return;}playing=true;musicSwitch=false;clearTimeout(musicTimer);void music.play();if(musicFrame===null)musicFrame=requestAnimationFrame(musicTick);draw();}
-    catch{if(token===epoch&&attempt===playRequest&&wantsPlay){playing=false;wantsPlay=false;stopMusic();draw();announce('Press Play to start this chapter.');}}
+
+  function draw() {
+    const next = lesson.chapters.findIndex(chapter => chapter.start > position);
+    const current = next < 0 ? lesson.chapters.length - 1 : next - 1;
+    const chapter = lesson.chapters[current];
+    if (current !== index) {
+      index = current;
+      picture.src = chapter.poster;
+      picture.alt = chapter.title + ' — recorded example';
+      $('steps').replaceChildren(...chapter.steps.map(text => {
+        const step = document.createElement('li');
+        step.textContent = text;
+        return step;
+      }));
+      announce(`${lesson.title}. Chapter ${index + 1} of ${lesson.chapters.length}. ${chapter.title}`);
+    }
+    $('chapter-count').textContent = `${index + 1} of ${lesson.chapters.length}`;
+    $('chapter-title').textContent = completed ? 'Lesson complete' : chapter.title;
+    playButton.textContent = completed ? 'Replay' : wantsPlay ? 'Pause' : 'Play';
+    playButton.disabled = failed;
+    // Keep the one Play control visible even when the portrait picture is taller than the phone.
+    const onPicture = !wantsPlay && !still && !failed;
+    const controls = onPicture ? player : nextButton.parentElement;
+    if (playButton.parentElement !== controls) {
+      const focused = document.activeElement === playButton;
+      controls.insertBefore(playButton, onPicture ? null : nextButton);
+      if (focused) playButton.focus({preventScroll: true});
+    }
+    $('back').setAttribute('aria-label', index ? 'Previous chapter' : 'Restart first chapter');
+    $('next').textContent = next < 0 ? 'Finish →' : 'Next →';
+    $('finish').hidden = !completed;
+    $('finish').textContent = lesson.id === 'first-save' ? 'Start using Wantt' : 'Finish shortcut lesson';
+    $('error-overlay').hidden = !failed;
+    video.hidden = still;
+    picture.hidden = !still;
+    $('still-toggle').setAttribute('aria-pressed', String(still));
+    $('caption-toggle').setAttribute('aria-pressed', String(captioned));
+    $('caption').hidden = !captioned;
+    $('caption').textContent = chapter.narration;
+    $('sound').setAttribute('aria-pressed', String(!video.muted));
+    $('sound').textContent = video.muted ? 'Sound off' : 'Sound on';
+    [...$('progress').children].forEach((segment, i) => {
+      const marker = lesson.chapters[i];
+      segment.firstChild.style.width = bound((position - marker.start) / marker.duration * 100, 100) + '%';
+    });
   }
-  function load(next,autoplay=false,seek=0){
-    const keep=autoplay&&!still&&music.status().playing&&music.lesson===lesson.id;
-    music.select(lesson.id);musicSwitch=keep;clearTimeout(musicTimer);
-    if(keep)musicTimer=setTimeout(()=>{if(musicSwitch){musicSwitch=false;music.pause();}},500);else music.pause();
-    playRequest++;video.pause();wantsPlay=false;playing=false;epoch++;index=Math.max(0,Math.min(lesson.chapters.length-1,next));completed=false;failed=false;pendingSeek=Math.max(0,Math.min(chapter().duration-.05,seek));$('finished').hidden=true;
-    video.src=chapter().file;video.poster=chapter().poster;picture.src=chapter().poster;picture.alt=chapter().title+' — recorded example';
-    video.setAttribute('aria-label',chapter().title);video.load();
-    $('progress').replaceChildren(...lesson.chapters.map(()=>{const d=document.createElement('div');d.className='segment';d.append(document.createElement('span'));return d;}));
-    $('steps').replaceChildren(...chapter().steps.map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));
-    guide.lessons.forEach(l=>$(l.id).setAttribute('aria-pressed',String(l===lesson)));
-    announce(`${lesson.title}. Chapter ${index+1} of ${lesson.chapters.length}. ${chapter().title}`);draw();save();
-    if(autoplay&&!still)void play();
+
+  function readPosition() {
+    if (ready && !completed && video.readyState >= 1) position = bound(video.currentTime, lesson.duration);
   }
-  function next(){if(index<lesson.chapters.length-1){load(index+1,!still);}else{pause();completed=true;pendingSeek=duration();if(video.readyState>=1)video.currentTime=duration();draw();save();announce('Lesson complete. Replay any chapter, or try the optional shortcut.');}}
-  function back(){if(time()>1||index===0){video.currentTime=0;completed=false;pendingSeek=0;if(!still)void play();draw();save();}else load(index-1,!still);}
-  $('next').addEventListener('click',next);$('back').addEventListener('click',back);
-  $('play').addEventListener('click',()=>playing?pause():void play());$('start-overlay').addEventListener('click',()=>void play());
-  $('sound').addEventListener('click',()=>{video.muted=!video.muted;music.setMuted(video.muted);draw();});
-  $('caption-toggle').addEventListener('click',()=>{captioned=!captioned;draw();});
-  $('still-toggle').addEventListener('click',()=>{pause();still=!still;draw();});
-  $('retry').addEventListener('click',()=>{load(index,false,time());});
-  $('auto-advance').addEventListener('change',e=>{automatic=e.target.checked;});
-  $('finish').addEventListener('click',()=>{pause();$('finished').hidden=false;$('finished').focus();});
-  $('restart-lesson').addEventListener('click',()=>{load(0,false);$('play').focus();});
-  for(const id of ['previous-zone','next-zone']){
-    const zone=$(id);zone.addEventListener('click',e=>e.preventDefault());
-    zone.addEventListener('pointerdown',e=>{if(e.button!==0)return;hold={x:e.clientX,y:e.clientY,start:performance.now(),wasPlaying:playing||wantsPlay||!video.paused,pointer:e.pointerId,id};zone.setPointerCapture(e.pointerId);if(hold.wasPlaying)pause();});
-    zone.addEventListener('pointerup',e=>{const h=hold;hold=null;if(!h||h.pointer!==e.pointerId)return;const moved=Math.hypot(e.clientX-h.x,e.clientY-h.y)>18,elapsed=performance.now()-h.start;if(moved)return;if(elapsed>350){if(h.wasPlaying)void play();return;}if(id==='next-zone')next();else back();});
-    zone.addEventListener('pointermove',e=>{if(hold&&Math.hypot(e.clientX-hold.x,e.clientY-hold.y)>18){hold=null;pause();}});
-    zone.addEventListener('pointercancel',()=>{hold=null;pause();});
+
+  function pause() {
+    wantsPlay = false;
+    attempt++;
+    video.pause();
+    readPosition();
+    save();
+    draw();
   }
-  // Holding the picture pauses immediately. A short release navigates; a long
-  // release resumes only the chapter that was already playing.
-  document.addEventListener('keydown',e=>{if(e.target.closest('input,summary,a,textarea,select'))return;const button=e.target.closest('button');if(e.key==='ArrowRight'||e.key==='ArrowLeft'){if(button&&!button.closest('.controls,#player'))return;e.preventDefault();e.key==='ArrowRight'?next():back();}else if(e.code==='Space'&&!button){e.preventDefault();playing?pause():void play();}});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
-  reduced.addEventListener('change',e=>{if(e.matches){pause();still=true;automatic=false;draw();announce('Reduced motion enabled. Still view selected.');}});
-  function chooseLesson(l,writeHash=true){if(l===lesson)return;history.set(lesson.id,{index,time:time()});pause();lesson=l;const s=history.get(l.id);load(s?.index??0,false,s?.time??0);if(writeHash)window.history.replaceState(null,'','#'+l.id);}
-  guide.lessons.forEach(l=>$(l.id).addEventListener('click',()=>chooseLesson(l)));
-  window.addEventListener('hashchange',()=>{const l=guide.lessons.find(item=>'#'+item.id===location.hash);if(l)chooseLesson(l,false);});
-  video.addEventListener('loadedmetadata',()=>{const start=completed?duration():Math.max(0,Math.min(duration()-.05,pendingSeek));pendingSeek=0;video.currentTime=start;if(start>=duration()-.08)completed=true;draw();save();});
-  video.addEventListener('play',()=>{if(!wantsPlay||document.hidden){video.pause();return;}playing=true;draw();});video.addEventListener('pause',()=>{playing=false;if(!musicSwitch&&!(video.ended&&automatic&&!still&&index<lesson.chapters.length-1)&&video.paused)stopMusic();save();draw();});
-  video.addEventListener('timeupdate',()=>{draw();});
-  video.addEventListener('waiting',()=>{if(wantsPlay&&!musicSwitch)music.pause();});
-  video.addEventListener('stalled',()=>{if(wantsPlay&&!musicSwitch)music.pause();});
-  video.addEventListener('playing',()=>{if(wantsPlay&&!document.hidden){void music.play();if(musicFrame===null)musicFrame=requestAnimationFrame(musicTick);}});
-  video.addEventListener('ended',()=>{if(video.readyState<1||time()<duration()-.08)return;playing=false;wantsPlay=false;completed=true;save();if(automatic&&!still&&index<lesson.chapters.length-1)load(index+1,true);else{stopMusic();draw();announce(index===lesson.chapters.length-1?'Lesson complete.':'Chapter complete. Choose Next when you are ready.');}});
-  video.addEventListener('error',()=>{pause();failed=true;$('instructions').open=true;draw();announce('Video unavailable. Written instructions are available below.');});
-  $('shortcut').disabled=!guide.lessons[1].chapters.length;
-  load(index,false,pendingSeek);
-  $('sharing-lessons').hidden=false;$('plain-guide').hidden=true;
+
+  function seek(seconds) {
+    position = bound(seconds, lesson.duration);
+    completed = false;
+    $('finished').hidden = true;
+    if (ready) video.currentTime = Math.min(position, lesson.duration - .02);
+    save();
+    draw();
+  }
+
+  async function play() {
+    if (failed || document.hidden) return;
+    if (still) still = false;
+    if (completed) seek(0);
+    wantsPlay = true;
+    const token = ++attempt;
+    draw();
+    try {
+      await video.play();
+    } catch {
+      if (token !== attempt) return;
+      wantsPlay = false;
+      draw();
+      announce('Press Play to start the lesson.');
+    }
+  }
+
+  function load(item, seconds) {
+    wantsPlay = false;
+    attempt++;
+    ready = false;
+    video.pause();
+    lesson = item;
+    position = bound(seconds, lesson.duration);
+    completed = position >= lesson.duration - .02;
+    failed = false;
+    index = -1;
+    $('finished').hidden = true;
+    video.src = lesson.file;
+    video.poster = lesson.chapters[0].poster;
+    video.setAttribute('aria-label', lesson.title + ' — recorded example');
+    video.load();
+    $('progress').replaceChildren(...lesson.chapters.map(() => {
+      const segment = document.createElement('div');
+      segment.className = 'segment';
+      segment.append(document.createElement('span'));
+      return segment;
+    }));
+    guide.lessons.forEach(item => $(item.id).setAttribute('aria-pressed', String(item === lesson)));
+    draw();
+  }
+
+  function finishLesson(skip) {
+    pause();
+    completed = true;
+    position = lesson.duration;
+    if (skip && ready) video.currentTime = Math.max(0, lesson.duration - .02);
+    save();
+    draw();
+    announce('Lesson complete. You can replay or continue.');
+  }
+
+  function move(direction) {
+    if (direction > 0 && index === lesson.chapters.length - 1) finishLesson(true);
+    else seek(lesson.chapters[Math.max(0, index + direction)].start);
+  }
+
+  function chooseLesson(item, writeHash = true) {
+    if (item === lesson) return;
+    pause();
+    load(item, positions.get(item.id) || 0);
+    if (writeHash) window.history.replaceState(null, '', '#' + item.id);
+  }
+
+  $('next').addEventListener('click', () => move(1));
+  $('back').addEventListener('click', () => move(-1));
+  $('play').addEventListener('click', () => wantsPlay ? pause() : void play());
+  $('sound').addEventListener('click', () => { video.muted = !video.muted; draw(); });
+  $('caption-toggle').addEventListener('click', () => { captioned = !captioned; draw(); });
+  $('still-toggle').addEventListener('click', () => { pause(); still = !still; draw(); });
+  $('retry').addEventListener('click', () => load(lesson, position));
+  $('finish').addEventListener('click', () => {
+    pause();
+    $('finished').hidden = false;
+    $('finished').focus();
+  });
+  $('restart-lesson').addEventListener('click', () => {
+    seek(0);
+    $('play').focus();
+  });
+
+  for (const [id, direction] of [['previous-zone', -1], ['next-zone', 1]]) {
+    const zone = $(id);
+    zone.addEventListener('click', e => e.preventDefault());
+    zone.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || hold || failed) return;
+      const gesture = {id: e.pointerId, x: e.clientX, y: e.clientY, wasPlaying: wantsPlay, held: false};
+      hold = gesture;
+      zone.setPointerCapture(e.pointerId);
+      gesture.timer = setTimeout(() => {
+        gesture.held = true;
+        if (gesture.wasPlaying) pause();
+      }, 350);
+    });
+    const cancelHold = e => {
+      if (!hold || hold.id !== e.pointerId) return;
+      clearTimeout(hold.timer);
+      hold = null;
+    };
+    zone.addEventListener('pointerup', e => {
+      const gesture = hold;
+      if (!gesture || gesture.id !== e.pointerId) return;
+      cancelHold(e);
+      if (gesture.held) {
+        if (gesture.wasPlaying) void play();
+      } else move(direction);
+    });
+    zone.addEventListener('pointermove', e => {
+      if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 18) cancelHold(e);
+    });
+    zone.addEventListener('pointercancel', cancelHold);
+    zone.addEventListener('lostpointercapture', cancelHold);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input,summary,a,textarea,select')) return;
+    const button = e.target.closest('button');
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      if (button && !button.closest('.controls,#player')) return;
+      e.preventDefault();
+      move(e.key === 'ArrowRight' ? 1 : -1);
+    } else if (e.code === 'Space' && !button) {
+      e.preventDefault();
+      wantsPlay ? pause() : void play();
+    }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  window.addEventListener('pagehide', pause);
+  reduced.addEventListener('change', e => {
+    if (!e.matches) return;
+    pause();
+    still = true;
+    draw();
+    announce('Reduced motion enabled. Still view selected.');
+  });
+  guide.lessons.forEach(item => $(item.id).addEventListener('click', () => chooseLesson(item)));
+  window.addEventListener('hashchange', () => {
+    const item = guide.lessons.find(item => '#' + item.id === location.hash);
+    if (item) chooseLesson(item, false);
+  });
+  video.addEventListener('loadedmetadata', () => {
+    ready = true;
+    video.currentTime = Math.min(position, Math.max(0, video.duration - .02));
+    draw();
+  });
+  video.addEventListener('play', () => {
+    if (!wantsPlay || document.hidden) video.pause();
+  });
+  video.addEventListener('pause', () => {
+    if (ready && wantsPlay && video.paused && !video.ended) pause();
+  });
+  video.addEventListener('timeupdate', () => { readPosition(); draw(); });
+  video.addEventListener('ended', () => { if (ready && video.ended) finishLesson(false); });
+  video.addEventListener('error', () => {
+    pause();
+    failed = true;
+    $('instructions').open = true;
+    draw();
+    announce('Video unavailable. Written instructions are available below.');
+  });
+
+  load(lesson, positions.get(lesson.id) || 0);
+  $('sharing-lessons').hidden = false;
+  $('plain-guide').hidden = true;
 })();
